@@ -1,5 +1,6 @@
 package com.gabryel.task.controller;
 
+import com.gabryel.task.dto.PagedResponseDTO;
 import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskFindDTO;
 import com.gabryel.task.dto.TaskSaveDTO;
@@ -25,7 +26,7 @@ public class TeskController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<TaskDetailDTO>> getAllTasks(@RequestParam(required = false) String id,
+    public ResponseEntity<PagedResponseDTO> getAllTasks(@RequestParam(required = false) String id,
                                                         @RequestParam(required = false) String title,
                                                         @RequestParam(required = false) String description,
                                                         @RequestParam(required = false, defaultValue = "0") Integer priority,

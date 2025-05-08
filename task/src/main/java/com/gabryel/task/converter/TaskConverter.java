@@ -1,9 +1,11 @@
 package com.gabryel.task.converter;
 
+import com.gabryel.task.dto.PagedResponseDTO;
 import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -47,6 +49,10 @@ public class TaskConverter {
         return Optional.ofNullable(entities)
                 .map(it -> it.stream().map(this::toDetail).toList())
                 .orElse(new ArrayList<>());
+    }
+
+    public PagedResponseDTO<TaskDetailDTO> pagedResponseDTO(Page<TaskEntity> page) {
+        return new PagedResponseDTO<>(toDetailList(page.getContent()), page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(), page.isFirst(), page.isLast());
     }
 
 }

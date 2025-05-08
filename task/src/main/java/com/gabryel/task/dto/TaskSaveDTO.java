@@ -2,7 +2,7 @@ package com.gabryel.task.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema
+@Schema(description = "Objeto contendo os dados de uma nova tarefa a ser criada na API.")
 public class TaskSaveDTO {
 
     private String title;

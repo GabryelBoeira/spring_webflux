@@ -1,6 +1,7 @@
 package com.gabryel.task.service;
 
 import com.gabryel.task.converter.TaskConverter;
+import com.gabryel.task.dto.PagedResponseDTO;
 import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskFindDTO;
 import com.gabryel.task.dto.TaskSaveDTO;
@@ -24,9 +25,10 @@ public class TaskService {
         this.repository = repository;
     }
 
-    public Page<TaskDetailDTO> findPaginate(String id, String title, String description, Integer priority, TaskState state, Integer page, Integer size) {
-        return repository.findPageableByFilters(TaskFindDTO.builder().id(id).title(title).description(description).priority(priority).state(state).build(), page, size)
-                .map(converter::toDetail);
+    public PagedResponseDTO<TaskDetailDTO> findPaginate(String id, String title, String description, Integer priority, TaskState state, Integer page, Integer size) {
+        var find = TaskFindDTO.builder().id(id).title(title).description(description).priority(priority).state(state).build();
+        var pageResult = repository.findPageableByFilters(find, page, size);
+        return converter.pagedResponseDTO(pageResult);
     }
 
     public Mono<TaskDetailDTO> insertTask(TaskSaveDTO task) {

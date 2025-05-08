@@ -36,19 +36,19 @@ public class TaskAspect {
     }
 
     // Pointcut (método a ser observado)
-    @Pointcut("execution(* com.gabryel.task.service.TaskService.insertTask(..))")
-    public void newTaskExecution() {
+    @Pointcut("execution(* com.gabryel.task.service.TaskService.*(..))")
+    public void newTaskServiceExecution() {
     }
 
-    @Before(value = "newTaskExecution() && args(headers, body)")
-    public void beforeNewTask(final JoinPoint joinPoint, final Object headers, final Object body) {
+    @Before(value = "newTaskServiceExecution()")
+    public void beforeNewTask(final JoinPoint joinPoint) {
         CompletableFuture.runAsync(() -> {
-            LOGGER.debug(":: AccountAspect.beforeNewTask: " + body);
+            LOGGER.debug(":: AccountAspect.beforeNewTask: " + joinPoint);
         });
     }
 
     /// After NewAccount (execução após passar pelo método)
-    @AfterReturning(value = "newTaskExecution()", returning = "response")
+    @AfterReturning(value = "newTaskServiceExecution()", returning = "response")
     public void afterNewTask(final JoinPoint joinPoint, final Mono<TaskDetailDTO> response) {
         TaskDetailDTO newAccountResponse = response.share().block();
         CompletableFuture.runAsync(() -> {
