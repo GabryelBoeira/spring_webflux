@@ -1,10 +1,7 @@
 package com.gabryel.task.dto;
 
-import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import java.util.List;
 
 @Schema
 public class TaskDetailDTO {
@@ -65,4 +62,15 @@ public class TaskDetailDTO {
         this.state = state;
     }
 
+    @Override
+    public String toString() {
+        return "TaskDetailDTO{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", priority=" + priority +
+                ", state=" + state +
+                '}';
+    }
+    
 }
