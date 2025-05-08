@@ -1,9 +1,14 @@
 package com.gabryel.task.entity;
 
 import com.gabryel.task.enums.TaskState;
-import com.gabryel.task.service.TaskService;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document
 public class TaskEntity {
+
+    @Id
+    private String id;
 
     private String title;
 
@@ -21,6 +26,18 @@ public class TaskEntity {
         this.description = description;
         this.priority = priority;
         this.state = state;
+    }
+
+    public TaskEntity(Builder builder) {
+        this.id = builder.id;
+        this.title = builder.title;
+        this.description = builder.description;
+        this.priority = builder.priority;
+        this.state = builder.state;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getTitle() {
@@ -41,24 +58,23 @@ public class TaskEntity {
         return state;
     }
 
-
-    public TaskEntity insert() {
-        this.state = TaskState.INSERT;
-        TaskService.list.add(this);
-        return this;
-    }
-
     public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder {
+        private String id;
         private String title;
         private String description;
         private int priority;
         private TaskState state;
 
         private Builder() {
+        }
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
         }
 
         public Builder title(String title) {
@@ -82,7 +98,7 @@ public class TaskEntity {
         }
 
         public TaskEntity build() {
-            return new TaskEntity(title, description, priority, state);
+            return new TaskEntity(this);
         }
     }
 }

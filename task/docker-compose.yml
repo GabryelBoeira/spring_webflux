@@ -1,0 +1,25 @@
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    environment:
+      - MONGO_INITDB_DATABASE=task
+    volumes:
+      - data_mongodb:/data/db
+    networks:
+      - mongodb
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.runCommand('ping').ok" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+
+networks:
+  mongodb:
+
+volumes:
+  data_mongodb:

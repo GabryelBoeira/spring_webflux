@@ -1,3 +1,8 @@
 spring:
   application:
     name: task
+  data:
+    mongodb:
+      database: task
+      uri: mongodb://localhost:27017/task?maxPoolSize=50&waitQueueTimeoutMS=2000
+      auto-index-creation: true
