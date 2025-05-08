@@ -21,13 +21,6 @@ public class TaskEntity {
     public TaskEntity() {
     }
 
-    public TaskEntity(String title, String description, int priority, TaskState state) {
-        this.title = title;
-        this.description = description;
-        this.priority = priority;
-        this.state = state;
-    }
-
     public TaskEntity(Builder builder) {
         this.id = builder.id;
         this.title = builder.title;
@@ -44,11 +37,9 @@ public class TaskEntity {
         return title;
     }
 
-
     public String getDescription() {
         return description;
     }
-
 
     public int getPriority() {
         return priority;

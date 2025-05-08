@@ -9,6 +9,7 @@ import java.util.List;
 @Schema
 public class TaskDetailDTO {
 
+    private String id;
     private String title;
     private String description;
     private int priority;
@@ -24,8 +25,12 @@ public class TaskDetailDTO {
         this.state = state;
     }
 
-    public static TaskDetailDTO toDTO(TaskEntity task) {
-        return new TaskDetailDTO(task.getTitle(), task.getDescription(), task.getPriority(), task.getState());
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -60,7 +65,4 @@ public class TaskDetailDTO {
         this.state = state;
     }
 
-    public static List<TaskDetailDTO> toDTOList(List<TaskEntity> taskEntities) {
-        return taskEntities.stream().map(TaskDetailDTO::toDTO).toList();
-    }
 }

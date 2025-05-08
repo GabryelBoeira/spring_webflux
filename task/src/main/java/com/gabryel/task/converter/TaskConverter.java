@@ -3,6 +3,7 @@ package com.gabryel.task.converter;
 import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.entity.TaskEntity;
+import com.gabryel.task.enums.TaskState;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class TaskConverter {
                         .title(it.getTitle())
                         .description(it.getDescription())
                         .priority(it.getPriority())
+                        .state(TaskState.INSERT)
                         .build())
                 .orElse(null);
     }
@@ -32,6 +34,7 @@ public class TaskConverter {
         return Optional.ofNullable(entity)
                 .map(it -> {
                     TaskDetailDTO dto = new TaskDetailDTO();
+                    dto.setId(it.getId());
                     dto.setTitle(it.getTitle());
                     dto.setDescription(it.getDescription());
                     dto.setPriority(it.getPriority());
