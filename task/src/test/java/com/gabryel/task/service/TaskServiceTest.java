@@ -63,7 +63,7 @@ class TaskServiceTest {
     @Test
     void testDeleteById_shouldCallRepositoryDeleteById_andReturnVoidMono() {
         String id = "task-id";
-        when(repository.deleteById(id)).thenReturn(Mono.empty());
+        doNothing().when(repository).deleteById(id);
 
         StepVerifier.create(taskService.deleteById(id))
                 .expectComplete()

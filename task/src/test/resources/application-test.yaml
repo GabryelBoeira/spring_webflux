@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: task
+  data:
+    mongodb:
+      port: 1721
+      database: test-database
