@@ -50,7 +50,7 @@ public class TaskService {
 
     private Mono<TaskEntity> save(TaskEntity task) {
         return Mono.just(task)
-                .map(repository::save);
+                .flatMap(repository::save);
     }
 
 }

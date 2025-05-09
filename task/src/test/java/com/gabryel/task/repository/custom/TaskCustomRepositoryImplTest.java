@@ -3,6 +3,7 @@ package com.gabryel.task.repository.custom;
 import com.gabryel.task.dto.TaskFindDTO;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
+import com.gabryel.task.util.TaskUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -38,13 +39,7 @@ public class TaskCustomRepositoryImplTest {
         TaskFindDTO filters = TaskFindDTO.builder().title("Task").build();
         int page = 0, size = 10;
 
-        TaskEntity task = TaskEntity.builder()
-                .id("1")
-                .title("Task 1")
-                .description("Description 1")
-                .priority(1)
-                .state(TaskState.INSERT)
-                .build();
+        TaskEntity task = TaskUtils.TASK_ENTITY;
 
         List<TaskEntity> tasks = List.of(task);
 
@@ -55,7 +50,7 @@ public class TaskCustomRepositoryImplTest {
 
         assertThat(result.getTotalElements(), is(1L));
         assertThat(result.getContent(), hasSize(1));
-        assertThat(result.getContent().get(0).getTitle(), is("Task 1"));
+        assertThat(result.getContent().get(0).getTitle(), is("task-title"));
     }
 
     @Test
@@ -77,13 +72,7 @@ public class TaskCustomRepositoryImplTest {
         TaskFindDTO filters = TaskFindDTO.builder().priority(5).build();
         int page = 0, size = 10;
 
-        TaskEntity task = TaskEntity.builder()
-                .id("1")
-                .title("Task 1")
-                .description("Description 1")
-                .priority(5)
-                .state(TaskState.INSERT)
-                .build();
+        TaskEntity task = TaskUtils.TASK_ENTITY;
 
         List<TaskEntity> tasks = List.of(task);
 
@@ -99,16 +88,10 @@ public class TaskCustomRepositoryImplTest {
 
     @Test
     public void testFindPageableByFilters_WithStateFilter() {
-        TaskFindDTO filters = TaskFindDTO.builder().state(TaskState.DOING).build();
+        TaskFindDTO filters = TaskFindDTO.builder().state(TaskState.INSERT).build();
         int page = 0, size = 10;
 
-        TaskEntity task = TaskEntity.builder()
-                .id("1")
-                .title("Task 1")
-                .description("Description 1")
-                .priority(2)
-                .state(TaskState.DOING)
-                .build();
+        TaskEntity task = TaskUtils.TASK_ENTITY;
 
         List<TaskEntity> tasks = List.of(task);
 
@@ -119,7 +102,7 @@ public class TaskCustomRepositoryImplTest {
 
         assertThat(result.getTotalElements(), is(1L));
         assertThat(result.getContent(), hasSize(1));
-        assertThat(result.getContent().get(0).getState(), is(TaskState.DOING));
+        assertThat(result.getContent().get(0).getState(), is(TaskState.INSERT));
     }
 
     @Test

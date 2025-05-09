@@ -4,8 +4,10 @@ import com.gabryel.task.dto.PagedResponseDTO;
 import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
+import com.gabryel.task.util.TaskUtils;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
@@ -13,7 +15,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class TaskConverterTest {
 
     @Test
@@ -70,13 +72,7 @@ public class TaskConverterTest {
     @Test
     public void testToDetail_ValidEntity() {
         TaskConverter converter = new TaskConverter();
-        TaskEntity entity = TaskEntity.builder()
-                .id("task-id")
-                .title("task-title")
-                .description("task-description")
-                .priority(1)
-                .state(TaskState.INSERT)
-                .build();
+        TaskEntity entity = TaskUtils.TASK_ENTITY;
 
         TaskDetailDTO result = converter.toDetail(entity);
 
@@ -84,7 +80,7 @@ public class TaskConverterTest {
         assertEquals("task-id", result.getId());
         assertEquals("task-title", result.getTitle());
         assertEquals("task-description", result.getDescription());
-        assertEquals(1, result.getPriority());
+        assertEquals(5, result.getPriority());
         assertEquals(TaskState.INSERT, result.getState());
     }
 

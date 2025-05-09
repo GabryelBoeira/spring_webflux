@@ -5,6 +5,7 @@ import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.service.TaskService;
+import com.gabryel.task.util.TaskUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -31,10 +32,10 @@ public class TaskControllerTest {
     @DisplayName("controller_mustReturnOk_whenSaveSuccessFully")
     void getSaveSuccessFully() {
         WebTestClient client = WebTestClient.bindToController(taskController).build();
-        when(taskService.insertTask(any())).thenReturn(Mono.just(new TaskDetailDTO(UUID.randomUUID().toString(), "Teste", "Teste", 5, TaskState.INSERT)));
+        when(taskService.insertTask(any())).thenReturn(Mono.just(TaskUtils.TASK_DETAIL));
 
         var response = client.post().uri("/task")
-                .bodyValue(new TaskSaveDTO("Teste", "Teste", 5))
+                .bodyValue(TaskUtils.TASK_SAVED)
                 .exchange()
                 .expectStatus()
                 .isOk()
@@ -42,8 +43,8 @@ public class TaskControllerTest {
                 .consumeWith(result -> {
                     TaskDetailDTO responseBody = result.getResponseBody();
                     assert responseBody != null;
-                    assert responseBody.getTitle().equals("Teste");
-                    assert responseBody.getDescription().equals("Teste");
+                    assert responseBody.getTitle().equals("task-title");
+                    assert responseBody.getDescription().equals("task-description");
                     assert responseBody.getPriority() == 5;
                     assert responseBody.getState() == TaskState.INSERT;
                 });
