@@ -8,11 +8,15 @@ import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.repository.TaskRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
 public class TaskService {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
 
     private final TaskConverter converter;
     private final TaskRepository repository;
@@ -33,6 +37,8 @@ public class TaskService {
                 .just(task)
                 .map(converter::toEntity)
                 .flatMap(this::save)
+                .doOnError(t -> LOGGER.error("Erro ao inserir tarefa {} -> : {}", task, t.getMessage()))
+                .onErrorResume(t -> Mono.empty())
                 .map(converter::toDetail);
     }
 
