@@ -104,7 +104,7 @@ public class TaskControllerTest {
         WebTestClient client = WebTestClient.bindToController(taskController).build();
 
         client.delete()
-                .uri(uriBuilder -> uriBuilder.path("/task/{id}").build(""))
+                .uri(uriBuilder -> uriBuilder.path("/task/{id}").build(" "))
                 .exchange()
                 .expectStatus()
                 .isBadRequest();
