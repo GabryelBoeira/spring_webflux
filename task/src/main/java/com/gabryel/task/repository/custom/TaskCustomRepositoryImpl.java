@@ -16,11 +16,9 @@ import org.springframework.util.StringUtils;
 @Repository
 public class TaskCustomRepositoryImpl implements TaskCustomRepository{
 
-    private final MongoOperations mongo;
     private final MongoOperations mongoOperations;
 
-    public TaskCustomRepositoryImpl(MongoOperations mongo, MongoOperations mongoOperations) {
-        this.mongo = mongo;
+    public TaskCustomRepositoryImpl(MongoOperations mongoOperations) {
         this.mongoOperations = mongoOperations;
     }
 
