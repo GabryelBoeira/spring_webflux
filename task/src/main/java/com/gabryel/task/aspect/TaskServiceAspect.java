@@ -1,7 +1,6 @@
 package com.gabryel.task.aspect;
 
 import com.gabryel.task.dto.TaskDetailDTO;
-import com.gabryel.task.repository.TaskRepository;
 import com.gabryel.task.service.TaskService;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -19,41 +18,34 @@ import java.util.concurrent.CompletableFuture;
 
 @Aspect
 @Configuration
-public class TaskAspect {
+public class TaskServiceAspect {
 
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Value(value = "${spring.application.name}")
     private String project;
 
-    private final TaskRepository taskRepository;
     private final TaskService taskService;
 
     @Autowired
-    public TaskAspect(TaskRepository taskRepository, TaskService taskService) {
-        this.taskRepository = taskRepository;
+    public TaskServiceAspect(TaskService taskService) {
         this.taskService = taskService;
     }
 
-    // Pointcut (método a ser observado)
+    // Pointcut (define o que sera observado da classe ao method)
     @Pointcut("execution(* com.gabryel.task.service.TaskService.*(..))")
     public void newTaskServiceExecution() {
     }
 
     @Before(value = "newTaskServiceExecution()")
     public void beforeNewTask(final JoinPoint joinPoint) {
-        CompletableFuture.runAsync(() -> {
-            LOGGER.debug(":: AccountAspect.beforeNewTask: " + joinPoint);
-        });
+        LOGGER.info("Iniciou a execucao do metodo", joinPoint.getSignature().getName());
     }
 
-    /// After NewAccount (execução após passar pelo método)
-    @AfterReturning(value = "newTaskServiceExecution()", returning = "response")
-    public void afterNewTask(final JoinPoint joinPoint, final Mono<TaskDetailDTO> response) {
-        TaskDetailDTO newAccountResponse = response.share().block();
-        CompletableFuture.runAsync(() -> {
-            LOGGER.debug(":: AccountAspect.afterNewTask: " + newAccountResponse.toString());
-        });
+    /// After NewAccount (execução após passar pelo method)
+    @AfterReturning(value = "newTaskServiceExecution()")
+    public void afterAllTask(final JoinPoint joinPoint) {
+        LOGGER.info("Finalizou a execucao do metodo", joinPoint.getSignature().getName());
     }
 
 }

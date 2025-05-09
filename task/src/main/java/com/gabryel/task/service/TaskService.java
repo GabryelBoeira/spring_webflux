@@ -8,11 +8,8 @@ import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.repository.TaskRepository;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Service
 public class TaskService {

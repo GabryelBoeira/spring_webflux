@@ -28,4 +28,7 @@ public record PagedResponseDTO<T>(
         @Schema(description = "Ultima pagina", example = "true")
         boolean isLast
 ) {
+    public PagedResponseDTO() {
+        this(null, 0, 10, 0, 0, true, true);
+    }
 }

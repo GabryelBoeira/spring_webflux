@@ -15,7 +15,8 @@ public class TaskDetailDTO {
     public TaskDetailDTO() {
     }
 
-    public TaskDetailDTO(String title, String description, int priority, TaskState state) {
+    public TaskDetailDTO(String id, String title, String description, int priority, TaskState state) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.priority = priority;
