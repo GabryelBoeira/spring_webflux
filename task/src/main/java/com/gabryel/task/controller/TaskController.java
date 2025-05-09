@@ -5,13 +5,9 @@ import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.service.TaskService;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/task")

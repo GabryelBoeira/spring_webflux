@@ -36,8 +36,16 @@ public class TaskService {
                 .map(converter::toDetail);
     }
 
+    /**
+     * Remove uma tarefa pelo id de forma bloqueante.
+     * Não use este método para grandes volumes em ambientes reativos.
+     */
     public Mono<Void> deleteById(String id) {
-        return Mono.fromRunnable(() -> repository.deleteById(id));
+        return Mono.fromRunnable(() -> deleteByIdSync(id));
+    }
+
+    private void deleteByIdSync(String id) {
+        repository.deleteById(id);
     }
 
     private Mono<TaskEntity> save(TaskEntity task) {

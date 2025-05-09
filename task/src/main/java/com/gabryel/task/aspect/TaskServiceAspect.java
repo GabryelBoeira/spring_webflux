@@ -1,6 +1,5 @@
 package com.gabryel.task.aspect;
 
-import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.service.TaskService;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -12,9 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import reactor.core.publisher.Mono;
-
-import java.util.concurrent.CompletableFuture;
 
 @Aspect
 @Configuration
