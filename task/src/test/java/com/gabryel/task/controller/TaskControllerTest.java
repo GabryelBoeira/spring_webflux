@@ -55,9 +55,9 @@ public class TaskControllerTest {
     @DisplayName("getAllTasks_shouldReturnOk_withValidFilter")
     void getAllTasksShouldReturnOkWithValidFilter() {
         WebTestClient client = WebTestClient.bindToController(taskController).build();
-        var pagedResponseMock = new PagedResponseDTO();
+        var pagedResponseMock = new PagedResponseDTO<TaskDetailDTO>();
         // Mock success response
-        when(taskService.findPaginate(any(), any(), any(), any(), any(), any(), any())).thenReturn(pagedResponseMock);
+        when(taskService.findPaginate(any(), any(), any(), any(), any(), any(), any())).thenReturn(Mono.just(pagedResponseMock));
 
         client.get()
                 .uri(uriBuilder -> uriBuilder.path("/task")

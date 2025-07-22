@@ -23,13 +23,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @DataMongoTest
-public class TaskCustomRepositoryImplTest {
+public class TaskRepositoryCustomImplTest {
 
     @Mock
     private MongoOperations mongoOperations;
 
     @InjectMocks
-    private TaskCustomRepositoryImpl repository;
+    private TaskCustomImplRepository repository;
 
     @Test
     public void testFindPageableByFilters_WithTitleFilter() {

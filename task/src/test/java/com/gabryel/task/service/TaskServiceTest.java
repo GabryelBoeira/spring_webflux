@@ -39,25 +39,28 @@ class TaskServiceTest {
         when(repository.save(any())).thenReturn(Mono.just(TaskUtils.TASK_ENTITY));
 
         StepVerifier.create(taskService.insertTask(TaskUtils.TASK_SAVED))
-                .expectNext(TaskUtils.TASK_DETAIL)
-                .expectComplete()
-                .verify();
+                .expectNext(TaskUtils.TASK_DETAIL) // Verifica se o próximo elemento corresponde ao DTO esperado
+                .verifyComplete();
     }
 
     @Test
     void testFindPaginate_shouldReturnPagedResponseDTO_whenCalled() {
         var pagedResponseMock = Mockito.mock(PagedResponseDTO.class);
         var pageResultMock = Mockito.mock(Page.class);
+
         when(repository.findPageableByFilters(any(TaskFindDTO.class), any(), any()))
                 .thenReturn(pageResultMock);
         when(converter.pagedResponseDTO(pageResultMock)).thenReturn(pagedResponseMock);
 
-        PagedResponseDTO<TaskDetailDTO> result = taskService.findPaginate(
+        var result = taskService.findPaginate(
                 "id", "title", "desc", 1, TaskState.INSERT, 0, 10);
 
         verify(repository, times(1)).findPageableByFilters(any(TaskFindDTO.class), eq(0), eq(10));
         verify(converter, times(1)).pagedResponseDTO(pageResultMock);
-        assert result == pagedResponseMock;
+
+        StepVerifier.create(result)
+                .expectNext(pagedResponseMock)
+                .verifyComplete();
     }
 
     @Test

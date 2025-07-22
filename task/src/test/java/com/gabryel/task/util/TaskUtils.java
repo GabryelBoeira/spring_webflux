@@ -4,7 +4,11 @@ import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
+import org.springframework.boot.test.context.TestComponent;
+import org.springframework.stereotype.Component;
+import org.springframework.test.annotation.Commit;
 
+@TestComponent
 public class TaskUtils {
 
     public static TaskSaveDTO TASK_SAVED = new TaskSaveDTO("task-title", "task-description", 5);
