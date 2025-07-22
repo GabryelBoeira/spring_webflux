@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class TaskService {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
 
     private final TaskConverter converter;
     private final TaskRepository repository;
@@ -26,10 +26,10 @@ public class TaskService {
         this.repository = repository;
     }
 
-    public PagedResponseDTO<TaskDetailDTO> findPaginate(String id, String title, String description, Integer priority, TaskState state, Integer page, Integer size) {
+    public Mono<PagedResponseDTO<TaskDetailDTO>> findPaginate(String id, String title, String description, Integer priority, TaskState state, Integer page, Integer size) {
         var find = TaskFindDTO.builder().id(id).title(title).description(description).priority(priority).state(state).build();
         var pageResult = repository.findPageableByFilters(find, page, size);
-        return converter.pagedResponseDTO(pageResult);
+        return Mono.just(converter.pagedResponseDTO(pageResult));
     }
 
     public Mono<TaskDetailDTO> insertTask(TaskSaveDTO task) {
@@ -46,17 +46,20 @@ public class TaskService {
      * Remove uma tarefa pelo id de forma bloqueante.
      * Não use este method para grandes volumes em ambientes reativos.
      */
-    public Mono<Void> deleteById(String id) {
-        return Mono.fromRunnable(() -> deleteByIdSync(id));
-    }
-
-    private void deleteByIdSync(String id) {
-        repository.deleteById(id);
+    public Mono<Void> deleteById(final String id) {
+        return repository.deleteById(id);
     }
 
     private Mono<TaskEntity> save(TaskEntity task) {
         return Mono.just(task)
-                .map(repository::save);
+                .flatMap(repository::save);
+    }
+
+    public Mono<Object> getTaskById(final String id) {
+
+        return repository
+                .findById(id)
+                .map(converter::toDetail);
     }
 
 }
