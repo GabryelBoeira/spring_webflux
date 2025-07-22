@@ -9,7 +9,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
@@ -18,10 +17,7 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 public class TaskServiceAspect {
 
-    private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-
-    @Value(value = "${spring.application.name}")
-    private String project;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskServiceAspect.class);
 
     private final TaskService taskService;
 
@@ -37,13 +33,12 @@ public class TaskServiceAspect {
 
     @Before(value = "newTaskServiceExecution()")
     public void beforeNewTask(final JoinPoint joinPoint) {
-        LOGGER.info("Iniciou a execucao do metodo", joinPoint.getSignature().getName());
+        LOGGER.info("Iniciou a execucao do metodo {}", joinPoint.getSignature().getName());
     }
 
-    /// After NewAccount (execução após passar pelo method)
     @AfterReturning(value = "newTaskServiceExecution()")
     public void afterAllTask(final JoinPoint joinPoint) {
-        LOGGER.info("Finalizou a execucao do metodo", joinPoint.getSignature().getName());
+        LOGGER.info("Finalizou a execucao do metodo {}", joinPoint.getSignature().getName());
     }
 
 }

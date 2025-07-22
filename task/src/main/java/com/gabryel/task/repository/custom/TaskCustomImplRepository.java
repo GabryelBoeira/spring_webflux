@@ -14,11 +14,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 @Repository
-public class TaskCustomRepositoryImpl implements TaskCustomRepository{
+public class TaskCustomImplRepository implements TaskCustomRepository {
 
     private final MongoOperations mongoOperations;
 
-    public TaskCustomRepositoryImpl(MongoOperations mongoOperations) {
+    public TaskCustomImplRepository(MongoOperations mongoOperations) {
         this.mongoOperations = mongoOperations;
     }
 
