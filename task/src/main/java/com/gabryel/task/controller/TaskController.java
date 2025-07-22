@@ -40,7 +40,7 @@ public class TaskController {
                 .switchIfEmpty(Mono.defer(() -> ServerResponse.noContent().build()));
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public Mono<ServerResponse> getTaskById(@PathVariable("id") String id) {
 
         LOGGER.debug("Request getTaskById(): id={}", id);

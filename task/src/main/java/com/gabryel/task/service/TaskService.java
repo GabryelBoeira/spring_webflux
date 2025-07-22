@@ -42,10 +42,6 @@ public class TaskService {
                 .map(converter::toDetail);
     }
 
-    /**
-     * Remove uma tarefa pelo id de forma bloqueante.
-     * Não use este method para grandes volumes em ambientes reativos.
-     */
     public Mono<Void> deleteById(final String id) {
         return repository.deleteById(id);
     }

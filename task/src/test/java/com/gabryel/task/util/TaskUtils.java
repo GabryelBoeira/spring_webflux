@@ -1,5 +1,6 @@
 package com.gabryel.task.util;
 
+import com.gabryel.task.dto.PagedResponseDTO;
 import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.entity.TaskEntity;
@@ -22,5 +23,7 @@ public class TaskUtils {
             .build();
 
     public static TaskDetailDTO TASK_DETAIL = new TaskDetailDTO("task-id", "task-title", "task-description", 5, TaskState.INSERT);
+
+    public static final PagedResponseDTO<TaskDetailDTO> PAGED_RESPONSE = new PagedResponseDTO<>();
 
 }

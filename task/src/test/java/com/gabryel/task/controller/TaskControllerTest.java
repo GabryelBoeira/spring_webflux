@@ -3,84 +3,77 @@ package com.gabryel.task.controller;
 import com.gabryel.task.dto.PagedResponseDTO;
 import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskSaveDTO;
-import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.service.TaskService;
 import com.gabryel.task.util.TaskUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+
+@WebFluxTest(TaskController.class)
 public class TaskControllerTest {
 
-    @Mock
+    @MockitoBean
     private TaskService taskService;
 
-    @InjectMocks
-    private TaskController taskController;
+    @Autowired
+    private WebTestClient webTestClient;
 
     @Test
     @DisplayName("controller_mustReturnOk_whenSaveSuccessFully")
     void getSaveSuccessFully() {
-        WebTestClient client = WebTestClient.bindToController(taskController).build();
-        when(taskService.insertTask(any())).thenReturn(Mono.just(TaskUtils.TASK_DETAIL));
+        TaskSaveDTO taskSaveDTO = TaskUtils.TASK_SAVED;
+        TaskDetailDTO taskDetailDTO = TaskUtils.TASK_DETAIL;
 
-        var response = client.post().uri("/task")
-                .bodyValue(TaskUtils.TASK_SAVED)
+        when(taskService.insertTask(any(TaskSaveDTO.class)))
+                .thenReturn(Mono.just(taskDetailDTO));
+
+        webTestClient.post()
+                .uri("/task")
+                .bodyValue(taskSaveDTO)
                 .exchange()
-                .expectStatus()
-                .isOk()
+                .expectStatus().isOk()
                 .expectBody(TaskDetailDTO.class)
-                .consumeWith(result -> {
-                    TaskDetailDTO responseBody = result.getResponseBody();
-                    assert responseBody != null;
-                    assert responseBody.getTitle().equals("task-title");
-                    assert responseBody.getDescription().equals("task-description");
-                    assert responseBody.getPriority() == 5;
-                    assert responseBody.getState() == TaskState.INSERT;
-                });
-
+                .isEqualTo(taskDetailDTO);
     }
 
     @Test
     @DisplayName("getAllTasks_shouldReturnOk_withValidFilter")
     void getAllTasksShouldReturnOkWithValidFilter() {
-        WebTestClient client = WebTestClient.bindToController(taskController).build();
-        var pagedResponseMock = new PagedResponseDTO<TaskDetailDTO>();
-        // Mock success response
-        when(taskService.findPaginate(any(), any(), any(), any(), any(), any(), any())).thenReturn(Mono.just(pagedResponseMock));
+        PagedResponseDTO<TaskDetailDTO> pagedResponse = TaskUtils.PAGED_RESPONSE;
 
-        client.get()
+        when(taskService.findPaginate(any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(Mono.just(pagedResponse));
+
+        webTestClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/task")
                         .queryParam("title", "Test Title")
-                        .queryParam("description", "Test Description")
                         .build())
                 .exchange()
-                .expectStatus()
-                .isOk()
+                .expectStatus().isOk()
                 .expectBody(PagedResponseDTO.class)
-                .consumeWith(result -> {
-                    assert result.getResponseBody() != null;
-                });
+                .isEqualTo(pagedResponse);
     }
 
     @Test
     @DisplayName("createTask_shouldReturnBadRequest_withInvalidData")
     void createTaskShouldReturnBadRequestWithInvalidData() {
-        WebTestClient client = WebTestClient.bindToController(taskController).build();
+        TaskSaveDTO invalidTaskDTO = new TaskSaveDTO();
 
-        client.post()
+        webTestClient.post()
                 .uri("/task")
-                .bodyValue(new TaskSaveDTO("", null, -1))
+                .bodyValue(invalidTaskDTO)
                 .exchange()
                 .expectStatus()
                 .isBadRequest();
@@ -89,26 +82,36 @@ public class TaskControllerTest {
     @Test
     @DisplayName("deleteTask_shouldReturnNoContent_withValidId")
     void deleteTaskShouldReturnNoContentWithValidId() {
-        WebTestClient client = WebTestClient.bindToController(taskController).build();
-        when(taskService.deleteById(any())).thenReturn(Mono.empty());
+        String validId = UUID.randomUUID().toString();
 
-        client.delete()
-                .uri(uriBuilder -> uriBuilder.path("/task/{id}").build("e2f5a3bc-8fd4-4ed8-b35c-5ab6efedc3d1"))
+        when(taskService.deleteById(validId))
+                .thenReturn(Mono.empty());
+
+        webTestClient.delete()
+                .uri("/task/{id}", validId)
                 .exchange()
                 .expectStatus()
                 .isNoContent();
     }
 
+
     @Test
     @DisplayName("deleteTask_shouldReturnBadRequest_withInvalidId")
     void deleteTaskShouldReturnBadRequestWithInvalidId() {
-        WebTestClient client = WebTestClient.bindToController(taskController).build();
+        String invalidId = "invalid-id";
+        String expectedErrorMessage = "Simulated Error: Invalid ID provided"; // More specific error message
 
-        client.delete()
-                .uri(uriBuilder -> uriBuilder.path("/task/{id}").build(" "))
+        when(taskService.deleteById(invalidId))
+                .thenReturn(Mono.error(new IllegalArgumentException(expectedErrorMessage)));
+
+        webTestClient.delete()
+                .uri("/task/{id}","")
                 .exchange()
-                .expectStatus()
-                .isBadRequest();
-    }
+                .expectStatus().isBadRequest()
+                .expectBody(String.class) // Expecting a String body from the error message
+                .isEqualTo(expectedErrorMessage); // Verify the exact message
 
+        // Verify that the deleteById method was actually called with the invalidId
+        verify(taskService).deleteById(invalidId);
+    }
 }
