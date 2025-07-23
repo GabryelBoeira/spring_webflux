@@ -10,8 +10,12 @@ import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.repository.TaskRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Service
 public class TaskService {
@@ -27,9 +31,40 @@ public class TaskService {
     }
 
     public Mono<PagedResponseDTO<TaskDetailDTO>> findPaginate(String id, String title, String description, Integer priority, TaskState state, Integer page, Integer size) {
-        var find = TaskFindDTO.builder().id(id).title(title).description(description).priority(priority).state(state).build();
-        var pageResult = repository.findPageableByFilters(find, page, size);
-        return Mono.just(converter.pagedResponseDTO(pageResult));
+        var filters = TaskFindDTO.builder().id(id).title(title).description(description).priority(priority).state(state).build();
+        var pageable = PageRequest.of(page, size, Sort.by("title").ascending());
+
+        Mono<List<TaskDetailDTO>> detailDTOsMono = repository.findPageableByFilters(filters, pageable)
+                .map(converter::toDetail)
+                .collectList();
+
+        Mono<Long> totalCountMono = repository.countByPageableByFilters(filters);
+
+        // Combina os dois Mono/Flux para construir um Mono<Page>
+        return Mono.zip(detailDTOsMono, totalCountMono)
+                .map(tuple -> {
+                    List<TaskDetailDTO> content = tuple.getT1();
+                    long totalElements = tuple.getT2();
+
+                    // Calcula o total de páginas. Se não houver elementos, considera 1 página.
+                    int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
+                    if (totalElements == 0) {
+                        totalPages = 1; // Para que isLast seja true na primeira (e única) página vazia
+                    }
+
+                    boolean isFirst = pageable.getPageNumber() == 0;
+                    boolean isLast = pageable.getPageNumber() == totalPages - 1;
+
+                    return new PagedResponseDTO<>(
+                            content,
+                            pageable.getPageNumber(),    // pageNumber
+                            pageable.getPageSize(),      // pageSize
+                            totalElements,               // totalElements
+                            totalPages,                  // totalPages
+                            isFirst,                     // isFirst
+                            isLast                       // isLast
+                    );
+                });
     }
 
     public Mono<TaskDetailDTO> insertTask(TaskSaveDTO task) {
