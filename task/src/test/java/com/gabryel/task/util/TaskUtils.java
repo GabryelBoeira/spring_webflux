@@ -6,6 +6,8 @@ import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
 import org.springframework.boot.test.context.TestComponent;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.test.annotation.Commit;
 
@@ -25,5 +27,7 @@ public class TaskUtils {
     public static TaskDetailDTO TASK_DETAIL = new TaskDetailDTO("task-id", "task-title", "task-description", 5, TaskState.INSERT);
 
     public static final PagedResponseDTO<TaskDetailDTO> PAGED_RESPONSE = new PagedResponseDTO<>();
+
+    public static final PageRequest PAGEABLE = PageRequest.of(0, 10, Sort.by("title").ascending());
 
 }
