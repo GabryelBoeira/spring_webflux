@@ -78,7 +78,7 @@ class TaskServiceTest {
     @Test
     void testDeleteById_shouldPropagateException_whenDeleteFails() {
         String id = "fail-id";
-        doThrow(new RuntimeException("Error")).when(repository).deleteById(id);
+        when(repository.deleteById(id)).thenReturn(Mono.error(new RuntimeException("Error"))); // Simula erro reativo
 
         StepVerifier.create(taskService.deleteById(id))
                 .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
@@ -87,4 +87,5 @@ class TaskServiceTest {
 
         verify(repository).deleteById(id);
     }
+
 }
