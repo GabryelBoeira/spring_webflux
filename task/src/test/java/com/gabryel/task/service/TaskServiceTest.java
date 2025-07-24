@@ -2,7 +2,6 @@ package com.gabryel.task.service;
 
 import com.gabryel.task.converter.TaskConverter;
 import com.gabryel.task.dto.PagedResponseDTO;
-import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskFindDTO;
 import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.repository.TaskRepository;
@@ -13,7 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -43,30 +43,50 @@ class TaskServiceTest {
                 .verifyComplete();
     }
 
-//    @Test
-//    void testFindPaginate_shouldReturnPagedResponseDTO_whenCalled() {
-//        var pagedResponseMock = Mockito.mock(PagedResponseDTO.class);
-//        var pageResultMock = Mockito.mock(Mono<Page>.class);
-//
-//        when(repository.findPageableByFilters(any(TaskFindDTO.class), any()))
-//                .thenReturn(pageResultMock);
-//        when(converter.pagedResponseDTO(pageResultMock)).thenReturn(pagedResponseMock);
-//
-//        var result = taskService.findPaginate(
-//                "id", "title", "desc", 1, TaskState.INSERT, 0, 10);
-//
-//        verify(repository, times(1)).findPageableByFilters(any(TaskFindDTO.class), eq(0), eq(10));
-//        verify(converter, times(1)).pagedResponseDTO(pageResultMock);
-//
-//        StepVerifier.create(result)
-//                .expectNext(pagedResponseMock)
-//                .verifyComplete();
-//    }
+    @Test
+    void testFindPaginate_shouldReturnPagedResponseDTO_whenCalled() {
+        // Criar mock com tipo genérico correto
+        var pagedResponseMock = Mockito.mock(PagedResponseDTO.class);
+
+        // O mock do repositório deve retornar um Flux, não um Mono<Page>
+        var taskEntity = TaskUtils.TASK_ENTITY;
+        var taskEntityFlux = Flux.just(taskEntity);
+
+        // Mockar a contagem para PagedResponseDTO
+        Mono<Long> countMono = Mono.just(1L);
+
+        // Configurar o comportamento do repositório
+        when(repository.findPageableByFilters(any(TaskFindDTO.class), any(Pageable.class)))
+                .thenReturn(taskEntityFlux);
+        when(repository.countByPageableByFilters(any(TaskFindDTO.class)))
+                .thenReturn(countMono);
+
+        // Configurar o comportamento do converter
+        when(converter.toDetail(any())).thenReturn(TaskUtils.TASK_DETAIL);
+
+        // Executar o method a ser testado
+        var result = taskService.findPaginate(
+                "id", "title", "desc", 1, TaskState.INSERT, 0, 10);
+
+        // Verificar se os métodos foram chamados com os parâmetros corretos
+        verify(repository, times(1)).findPageableByFilters(any(TaskFindDTO.class), any(Pageable.class));
+        verify(repository, times(1)).countByPageableByFilters(any(TaskFindDTO.class));
+
+        // Verificar o resultado usando StepVerifier
+        StepVerifier.create(result)
+                .expectNextMatches(response ->
+                        response.pageNumber() == 0 &&
+                                response.pageSize() == 10 &&
+                                response.totalElements() == 1L)
+                .verifyComplete();
+    }
 
     @Test
     void testDeleteById_shouldCallRepositoryDeleteById_andReturnVoidMono() {
         String id = "task-id";
-        doNothing().when(repository).deleteById(id);
+
+        // Corrigir o mock para retornar um Mono vazio
+        when(repository.deleteById(id)).thenReturn(Mono.empty());
 
         StepVerifier.create(taskService.deleteById(id))
                 .expectComplete()
