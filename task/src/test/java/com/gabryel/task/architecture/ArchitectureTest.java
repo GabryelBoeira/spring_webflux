@@ -16,6 +16,7 @@ public class ArchitectureTest {
     private static final String ENTITY = "com.gabryel.task.entity..";
     private static final String CONVERTER = "com.gabryel.task.converter..";
     private static final String EXCEPTION = "com.gabryel.task.exception..";
+    private static final String CONFIGURATION = "com.gabryel.task.configuration..";
 
     private final JavaClasses classes = new ClassFileImporter()
             .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
@@ -31,6 +32,22 @@ public class ArchitectureTest {
     }
 
     @Test
+    void configurationsShouldHaveCorrectNaming() {
+        ArchRuleDefinition.classes()
+                .that().resideInAPackage(CONFIGURATION)
+                .should().haveSimpleNameEndingWith("Configuration")
+                .check(classes);
+    }
+
+    @Test
+    void converterShouldHaveCorrectNaming() {
+        ArchRuleDefinition.classes()
+                .that().resideInAPackage(CONVERTER)
+                .should().haveSimpleNameEndingWith("Converter")
+                .check(classes);
+    }
+
+    @Test
     void servicesShouldHaveCorrectNaming() {
         ArchRuleDefinition.classes()
                 .that().resideInAPackage(SERVICE)
@@ -42,9 +59,9 @@ public class ArchitectureTest {
     void repositoriesShouldHaveCorrectNaming() {
         ArchRuleDefinition.classes()
                 .that().resideInAPackage(REPOSITORY)
-                .and().areInterfaces()
-                .and().areNotAnnotatedWith("org.springframework.stereotype.Repository")
                 .should().haveSimpleNameEndingWith("Repository")
+                .orShould().haveSimpleNameEndingWith("RepositoryCustom")
+                .orShould().haveSimpleNameEndingWith("RepositoryCustomImpl")
                 .check(classes);
     }
 
@@ -67,7 +84,7 @@ public class ArchitectureTest {
     @Test
     void onlyControllerAndServiceCanAccessDto() {
         ArchRuleDefinition.noClasses()
-                //.that().resideOutsideOfPackages(EXCEPTION, CONTROLLER, SERVICE, CONVERTER)
+                .that().resideOutsideOfPackages(EXCEPTION, CONTROLLER, SERVICE, CONVERTER)
                 .should().accessClassesThat().resideInAPackage(DTO)
                 .check(classes);
     }

@@ -1,6 +1,11 @@
 spring:
   application:
     name: task
+  messages:
+    default-locale: pt-BR
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: true
   data:
     mongodb:
       database: task
