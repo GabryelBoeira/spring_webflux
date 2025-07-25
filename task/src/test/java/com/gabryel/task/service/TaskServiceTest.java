@@ -2,6 +2,8 @@ package com.gabryel.task.service;
 
 import com.gabryel.task.converter.TaskConverter;
 import com.gabryel.task.dto.TaskFindDTO;
+import com.gabryel.task.dto.TaskSaveDTO;
+import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.repository.TaskRepository;
 import com.gabryel.task.util.TaskUtils;
@@ -11,10 +13,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static com.gabryel.task.util.TaskUtils.TASK_ENTITY;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -30,25 +35,34 @@ class TaskServiceTest {
     @InjectMocks
     private TaskService taskService;
 
-//    @Test
-//    void testInsertTask_mustReturnTaskDetailDTO_whenSuccess() {
-//        when(converter.toEntity(any())).thenReturn(TaskUtils.TASK_ENTITY);
-//        when(converter.toDetail(any())).thenReturn(TaskUtils.TASK_DETAIL);
-//        when(repository.save(any())).thenReturn(Mono.just(TaskUtils.TASK_ENTITY));
-//
-//        Mono<ServerResponse> response = taskService.insertTask(TASK_ENTITY);
-//
-//        StepVerifier.create(response)
-//                .expectNextMatches(serverResponse ->
-//                        serverResponse.statusCode().equals(HttpStatus.OK))
-//                .verifyComplete();
-//
-//    }
+    @Test
+    void testInsertTask_mustReturnTaskDetailDTO_whenSuccess() {
+        // Arrange
+        TaskSaveDTO taskSaveDTO = TaskUtils.TASK_SAVE_DTO; // Você precisa ter esta constante no TaskUtils
+        when(converter.toEntity(any())).thenReturn(TASK_ENTITY);
+        when(repository.save(any())).thenReturn(Mono.just(TASK_ENTITY));
+        when(converter.toDetail(any())).thenReturn(TaskUtils.TASK_DETAIL);
+
+        // Act
+        Mono<ServerResponse> response = taskService.insertTask(taskSaveDTO);
+
+        // Assert
+        StepVerifier.create(response)
+                .expectNextMatches(serverResponse ->
+                        serverResponse.statusCode().equals(HttpStatus.OK))
+                .verifyComplete();
+
+        // Verificações adicionais (opcional)
+        verify(converter).toEntity(any(TaskSaveDTO.class));
+        verify(repository).save(any(TaskEntity.class));
+        verify(converter).toDetail(any(TaskEntity.class));
+    }
+
 
     @Test
     void testFindPaginate_shouldReturnPagedResponseDTO_whenCalled() {
         // O mock do repositório deve retornar um Flux, não um Mono<Page>
-        var taskEntity = TaskUtils.TASK_ENTITY;
+        var taskEntity = TASK_ENTITY;
         var taskEntityFlux = Flux.just(taskEntity);
 
         // Mockar a contagem para PagedResponseDTO
@@ -64,8 +78,7 @@ class TaskServiceTest {
         when(converter.toDetail(any())).thenReturn(TaskUtils.TASK_DETAIL);
 
         // Executar o method a ser testado
-        var result = taskService.findPaginate(
-                "id", "title", "desc", 1, TaskState.INSERT, 0, 10);
+        var result = taskService.findPaginate("id", "title", "desc", 1, TaskState.INSERT, 0, 10);
 
         // Verificar se os métodos foram chamados com os parâmetros corretos
         verify(repository, times(1)).findPageableByFilters(any(TaskFindDTO.class), any(Pageable.class));

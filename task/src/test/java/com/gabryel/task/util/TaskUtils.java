@@ -14,8 +14,6 @@ import org.springframework.test.annotation.Commit;
 @TestComponent
 public class TaskUtils {
 
-    public static TaskSaveDTO TASK_SAVED = new TaskSaveDTO("task-title", "task-description", 5);
-
     public static TaskEntity TASK_ENTITY = TaskEntity.builder()
             .id("task-id")
             .title("task-title")
@@ -30,4 +28,5 @@ public class TaskUtils {
 
     public static final PageRequest PAGEABLE = PageRequest.of(0, 10, Sort.by("title").ascending());
 
+    public static final TaskSaveDTO TASK_SAVE_DTO = new TaskSaveDTO("task-title", "task-description", 5);
 }
