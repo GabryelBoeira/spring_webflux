@@ -1,5 +1,6 @@
 package com.gabryel.task.service;
 
+import com.gabryel.task.configuration.MessageConfiguration;
 import com.gabryel.task.converter.TaskConverter;
 import com.gabryel.task.dto.PagedResponseDTO;
 import com.gabryel.task.dto.TaskDetailDTO;
@@ -13,7 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -23,10 +26,12 @@ public class TaskService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
 
+    private final MessageConfiguration message;
     private final TaskConverter converter;
     private final TaskRepository repository;
 
-    public TaskService(TaskConverter converter, TaskRepository repository) {
+    public TaskService(MessageConfiguration message, TaskConverter converter, TaskRepository repository) {
+        this.message = message;
         this.converter = converter;
         this.repository = repository;
     }
@@ -70,14 +75,19 @@ public class TaskService {
                 .onErrorResume(t -> Mono.error(new BadRequestException("Erro ao buscar tarefas -> : " + t.getMessage())));
     }
 
-    public Mono<TaskDetailDTO> insertTask(TaskSaveDTO task) {
+    public Mono<ServerResponse> insertTask(TaskSaveDTO task) {
         return Mono
                 .just(task)
                 .map(converter::toEntity)
                 .flatMap(this::save)
                 .doOnError(t -> LOGGER.error("Erro ao inserir tarefa {} -> : {}", task, t.getMessage()))
-                .onErrorResume(t -> Mono.error(new BadRequestException("Erro ao inserir tarefa " + task.getTitle() + " -> : " + t.getMessage())))
-                .map(converter::toDetail);
+                .map(converter::toDetail)
+                .flatMap(dto -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).bodyValue(dto))
+                .onErrorResume(t ->
+                        ServerResponse.badRequest().bodyValue(
+                                message.getMessage("teste", task.getTitle(), t.getMessage())
+                        )
+                );
     }
 
     public Mono<Void> deleteById(final String id) {

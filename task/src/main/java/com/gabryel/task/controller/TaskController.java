@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -54,11 +53,7 @@ public class TaskController {
     @PostMapping
     public Mono<ServerResponse> createTask(@RequestBody TaskSaveDTO task) {
         LOGGER.debug("Request createTask(): {}", task);
-        return taskService.insertTask(task)
-                .flatMap(result -> ServerResponse.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(result))
-                .switchIfEmpty(Mono.defer(() -> ServerResponse.noContent().build()));
+        return taskService.insertTask(task);
     }
 
     @DeleteMapping("/{id}")

@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -40,9 +41,16 @@ public class TaskControllerTest {
     void getSaveSuccessFully() {
         // Arrange
         TaskSaveDTO input = new TaskSaveDTO("Teste", "Descrição de teste", 1);
-        TaskDetailDTO expected = new TaskDetailDTO("123", "Teste", "Descrição de teste", 1, TaskState.INSERT);
+        TaskDetailDTO detailDTO = new TaskDetailDTO("123", "Teste", "Descrição de teste", 1, TaskState.INSERT);
 
-        when(taskService.insertTask(input)).thenReturn(Mono.just(expected));
+        // Crie um ServerResponse para o mock retornar
+        ServerResponse mockResponse = ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(detailDTO)
+                .block(); // Isso cria um ServerResponse real para o teste
+
+        assert mockResponse != null;
+        when(taskService.insertTask(eq(input))).thenReturn(Mono.just(mockResponse));
 
         // Act
         Mono<ServerResponse> response = taskController.createTask(input);
@@ -53,6 +61,8 @@ public class TaskControllerTest {
                         serverResponse.statusCode().equals(HttpStatus.OK))
                 .verifyComplete();
     }
+
+
 
     @Test
     @DisplayName("getAllTasks_shouldReturnOk_withValidFilter")
