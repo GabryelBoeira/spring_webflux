@@ -8,6 +8,7 @@ import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.repository.TaskRepository;
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -64,7 +65,9 @@ public class TaskService {
                             isFirst,                     // isFirst
                             isLast                       // isLast
                     );
-                });
+                })
+                .doOnError(t -> LOGGER.error("Erro ao buscar tarefas -> : {}", t.getMessage()))
+                .onErrorResume(t -> Mono.error(new BadRequestException("Erro ao buscar tarefas -> : " + t.getMessage())));
     }
 
     public Mono<TaskDetailDTO> insertTask(TaskSaveDTO task) {
@@ -73,7 +76,7 @@ public class TaskService {
                 .map(converter::toEntity)
                 .flatMap(this::save)
                 .doOnError(t -> LOGGER.error("Erro ao inserir tarefa {} -> : {}", task, t.getMessage()))
-                .onErrorResume(t -> Mono.empty())
+                .onErrorResume(t -> Mono.error(new BadRequestException("Erro ao inserir tarefa " + task.getTitle() + " -> : " + t.getMessage())))
                 .map(converter::toDetail);
     }
 
@@ -86,11 +89,12 @@ public class TaskService {
                 .flatMap(repository::save);
     }
 
-    public Mono<Object> getTaskById(final String id) {
+    public Mono<TaskDetailDTO> getTaskById(final String id) {
 
         return repository
                 .findById(id)
-                .map(converter::toDetail);
+                .map(converter::toDetail)
+                .doOnError(t -> LOGGER.error("Erro ao buscar tarefa {} -> : {}", id, t.getMessage()));
     }
 
 }
