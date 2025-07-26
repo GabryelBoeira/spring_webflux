@@ -14,8 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -37,183 +36,161 @@ public class TaskControllerTest {
     private TaskController taskController;
 
     @Test
-    @DisplayName("controller_mustReturnOk_whenSaveSuccessFully")
+    @DisplayName("controller_mustReturnTaskDetail_whenSaveSuccessFully")
     void getSaveSuccessFully() {
         // Arrange
-        TaskSaveDTO input = new TaskSaveDTO("Teste", "Descrição de teste", 1);
-        TaskDetailDTO detailDTO = new TaskDetailDTO("123", "Teste", "Descrição de teste", 1, TaskState.INSERT);
+        TaskSaveDTO dto = TaskUtils.TASK_SAVE_DTO;
+        TaskDetailDTO detailDTO = TaskUtils.TASK_DETAIL_DTO;
 
-        // Crie um ServerResponse para o mock retornar
-        ServerResponse mockResponse = ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(detailDTO)
-                .block(); // Isso cria um ServerResponse real para o teste
+        when(taskService.insertTask(any(TaskSaveDTO.class)))
+                .thenReturn(Mono.just(detailDTO));
 
-        assert mockResponse != null;
-        when(taskService.insertTask(eq(input))).thenReturn(Mono.just(mockResponse));
-
-        // Act
-        Mono<ServerResponse> response = taskController.createTask(input);
-
-        // Assert
-        StepVerifier.create(response)
-                .expectNextMatches(serverResponse ->
-                        serverResponse.statusCode().equals(HttpStatus.OK))
+        // Act & Assert
+        StepVerifier.create(taskController.createTask(dto))
+                .expectNext(detailDTO)
                 .verifyComplete();
+
+        verify(taskService).insertTask(any(TaskSaveDTO.class));
     }
 
-
-
     @Test
-    @DisplayName("getAllTasks_shouldReturnOk_withValidFilter")
+    @DisplayName("getAllTasks_shouldReturnPagedResponse_withValidFilter")
     void getAllTasksShouldReturnOkWithValidFilter() {
         // Arrange
-        PagedResponseDTO<TaskDetailDTO> pagedResponse = TaskUtils.PAGED_RESPONSE;
-        String title = "Test Title";
+        String id = null;
+        String title = "title";
+        String description = null;
+        Integer priority = 0;
+        TaskState state = null;
+        Integer page = 0;
+        Integer size = 10;
 
-        when(taskService.findPaginate(any(), eq(title), any(), any(), any(), any(), any()))
+        PagedResponseDTO<TaskDetailDTO> pagedResponse = TaskUtils.PAGED_RESPONSE;
+
+        when(taskService.findPaginate(eq(id), eq(title), eq(description),
+                eq(priority), eq(state), eq(page), eq(size)))
                 .thenReturn(Mono.just(pagedResponse));
 
-        // Act
-        Mono<ServerResponse> response = taskController.getAllTasks(
-                null, title, null, 0, null, 0, 10);
-
-        // Assert
-        StepVerifier.create(response)
-                .expectNextMatches(serverResponse ->
-                        serverResponse.statusCode().equals(HttpStatus.OK))
+        // Act & Assert
+        StepVerifier.create(taskController.getAllTasks(id, title, description, priority, state, page, size))
+                .expectNext(pagedResponse)
                 .verifyComplete();
+
+        verify(taskService).findPaginate(eq(id), eq(title), eq(description),
+                eq(priority), eq(state), eq(page), eq(size));
     }
 
     @Test
-    @DisplayName("getAllTasks_shouldReturnNoContent_whenEmpty")
+    @DisplayName("getAllTasks_shouldThrowNoContent_whenEmpty")
     void getAllTasksShouldReturnNoContentWhenEmpty() {
         // Arrange
-        when(taskService.findPaginate(any(), any(), any(), any(), any(), any(), any()))
+        String id = null;
+        String title = "title";
+        String description = null;
+        Integer priority = 0;
+        TaskState state = null;
+        Integer page = 0;
+        Integer size = 10;
+
+        when(taskService.findPaginate(eq(id), eq(title), eq(description),
+                eq(priority), eq(state), eq(page), eq(size)))
                 .thenReturn(Mono.empty());
 
-        // Act
-        Mono<ServerResponse> response = taskController.getAllTasks(
-                null, null, null, 0, null, 0, 10);
+        // Act & Assert
+        StepVerifier.create(taskController.getAllTasks(id, title, description, priority, state, page, size))
+                .expectErrorMatches(throwable ->
+                        throwable instanceof ResponseStatusException &&
+                                ((ResponseStatusException) throwable).getStatusCode().equals(HttpStatus.NO_CONTENT))
+                .verify();
 
-        // Assert
-        StepVerifier.create(response)
-                .expectNextMatches(serverResponse ->
-                        serverResponse.statusCode().equals(HttpStatus.NO_CONTENT))
-                .verifyComplete();
+        verify(taskService).findPaginate(eq(id), eq(title), eq(description),
+                eq(priority), eq(state), eq(page), eq(size));
     }
 
     @Test
-    @DisplayName("getTaskById_shouldReturnOk_withValidId")
+    @DisplayName("getTaskById_shouldReturnTaskDetail_withValidId")
     void getTaskByIdShouldReturnOkWithValidId() {
         // Arrange
-        String validId = "123";
-        TaskDetailDTO task = new TaskDetailDTO(validId, "Teste", "Descrição", 1, TaskState.INSERT);
+        String id = UUID.randomUUID().toString();
+        TaskDetailDTO detailDTO = TaskUtils.TASK_DETAIL_DTO;
 
-        when(taskService.getTaskById(validId)).thenReturn(Mono.just(task));
+        when(taskService.getTaskById(eq(id)))
+                .thenReturn(Mono.just(detailDTO));
 
-        // Act
-        Mono<ServerResponse> response = taskController.getTaskById(validId);
-
-        // Assert
-        StepVerifier.create(response)
-                .expectNextMatches(serverResponse ->
-                        serverResponse.statusCode().equals(HttpStatus.OK))
+        // Act & Assert
+        StepVerifier.create(taskController.getTaskById(id))
+                .expectNext(detailDTO)
                 .verifyComplete();
+
+        verify(taskService).getTaskById(eq(id));
     }
 
     @Test
-    @DisplayName("getTaskById_shouldReturnNoContent_whenNotFound")
+    @DisplayName("getTaskById_shouldThrowNoContent_whenNotFound")
     void getTaskByIdShouldReturnNoContentWhenNotFound() {
         // Arrange
-        String id = "nonexistent";
-        when(taskService.getTaskById(id)).thenReturn(Mono.empty());
+        String id = UUID.randomUUID().toString();
 
-        // Act
-        Mono<ServerResponse> response = taskController.getTaskById(id);
-
-        // Assert
-        StepVerifier.create(response)
-                .expectNextMatches(serverResponse ->
-                        serverResponse.statusCode().equals(HttpStatus.NO_CONTENT))
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("deleteTask_shouldReturnNoContent_withValidId")
-    void deleteTaskShouldReturnNoContentWithValidId() {
-        // Arrange
-        String validId = UUID.randomUUID().toString();
-
-        when(taskService.deleteById(validId))
+        when(taskService.getTaskById(eq(id)))
                 .thenReturn(Mono.empty());
 
-        // Act
-        Mono<ServerResponse> response = taskController.deleteTask(validId);
+        // Act & Assert
+        StepVerifier.create(taskController.getTaskById(id))
+                .expectErrorMatches(throwable ->
+                        throwable instanceof ResponseStatusException &&
+                                ((ResponseStatusException) throwable).getStatusCode().equals(HttpStatus.NO_CONTENT))
+                .verify();
 
-        // Assert
-        StepVerifier.create(response)
-                .expectNextMatches(serverResponse ->
-                        serverResponse.statusCode().equals(HttpStatus.NO_CONTENT))
-                .verifyComplete();
-
-        verify(taskService).deleteById(validId);
+        verify(taskService).getTaskById(eq(id));
     }
 
     @Test
-    @DisplayName("deleteTask_shouldReturnBadRequest_withBlankId")
+    @DisplayName("deleteTask_shouldReturnVoid_withValidId")
+    void deleteTaskShouldReturnNoContentWithValidId() {
+        // Arrange
+        String id = UUID.randomUUID().toString();
+
+        when(taskService.deleteById(eq(id)))
+                .thenReturn(Mono.empty());
+
+        // Act & Assert
+        StepVerifier.create(taskController.deleteTask(id))
+                .verifyComplete();
+
+        verify(taskService).deleteById(eq(id));
+    }
+
+    @Test
+    @DisplayName("deleteTask_shouldThrowBadRequest_withBlankId")
     void deleteTaskShouldReturnBadRequestWithBlankId() {
         // Arrange
-        String blankId = "  ";
+        String id = " ";
 
-        // Act
-        Mono<ServerResponse> response = taskController.deleteTask(blankId);
-
-        // Assert
-        StepVerifier.create(response)
+        // Act & Assert
+        StepVerifier.create(taskController.deleteTask(id))
                 .expectErrorMatches(throwable ->
                         throwable instanceof BadRequestException &&
-                                throwable.getMessage().contains("obrigatorio"))
+                                throwable.getMessage().equals("`id` é obrigatório"))
                 .verify();
     }
 
     @Test
-    @DisplayName("deleteTask_shouldReturnBadRequest_withInvalidId")
+    @DisplayName("deleteTask_shouldThrowBadRequest_withInvalidId")
     void deleteTaskShouldReturnBadRequestWithInvalidId() {
         // Arrange
-        String invalidId = "invalid-id";
-        String expectedErrorMessage = "ID inválido";
+        String id = UUID.randomUUID().toString();
 
-        when(taskService.deleteById(invalidId))
-                .thenReturn(Mono.error(new IllegalArgumentException(expectedErrorMessage)));
+        when(taskService.deleteById(eq(id)))
+                .thenReturn(Mono.error(new RuntimeException("Erro ao deletar")));
 
-        // Act
-        Mono<ServerResponse> response = taskController.deleteTask(invalidId);
+        // Act & Assert
+        StepVerifier.create(taskController.deleteTask(id))
+                .expectErrorMatches(throwable ->
+                        throwable instanceof ResponseStatusException &&
+                                ((ResponseStatusException) throwable).getStatusCode().equals(HttpStatus.BAD_REQUEST) &&
+                                throwable.getMessage().contains("Erro ao deletar"))
+                .verify();
 
-        // Assert
-        StepVerifier.create(response)
-                .expectNextMatches(serverResponse ->
-                        serverResponse.statusCode().equals(HttpStatus.BAD_REQUEST))
-                .verifyComplete();
-
-        verify(taskService).deleteById(invalidId);
-    }
-
-    @Test
-    @DisplayName("createTask_shouldReturnNoContent_whenEmpty")
-    void createTaskShouldReturnNoContentWhenEmpty() {
-        // Arrange
-        TaskSaveDTO task = new TaskSaveDTO("Teste", "Descrição", 1);
-
-        when(taskService.insertTask(task)).thenReturn(Mono.empty());
-
-        // Act
-        Mono<ServerResponse> response = taskController.createTask(task);
-
-        // Assert
-        StepVerifier.create(response)
-                .expectNextMatches(serverResponse ->
-                        serverResponse.statusCode().equals(HttpStatus.NO_CONTENT))
-                .verifyComplete();
+        verify(taskService).deleteById(eq(id));
     }
 }

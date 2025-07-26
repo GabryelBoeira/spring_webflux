@@ -11,6 +11,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.test.annotation.Commit;
 
+import java.util.List;
+
 @TestComponent
 public class TaskUtils {
 
@@ -22,9 +24,9 @@ public class TaskUtils {
             .state(TaskState.INSERT)
             .build();
 
-    public static TaskDetailDTO TASK_DETAIL = new TaskDetailDTO("task-id", "task-title", "task-description", 5, TaskState.INSERT);
+    public static TaskDetailDTO TASK_DETAIL_DTO = new TaskDetailDTO("task-id", "task-title", "task-description", 5, TaskState.INSERT);
 
-    public static final PagedResponseDTO<TaskDetailDTO> PAGED_RESPONSE = new PagedResponseDTO<>();
+    public static final PagedResponseDTO<TaskDetailDTO> PAGED_RESPONSE = new PagedResponseDTO<>(List.of(TaskUtils.TASK_DETAIL_DTO), 1, 0, 1);
 
     public static final PageRequest PAGEABLE = PageRequest.of(0, 10, Sort.by("title").ascending());
 
