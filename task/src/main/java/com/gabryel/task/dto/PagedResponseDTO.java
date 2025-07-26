@@ -31,4 +31,16 @@ public record PagedResponseDTO<T>(
     public PagedResponseDTO() {
         this(null, 0, 10, 0, 0, true, true);
     }
+
+    public PagedResponseDTO(List<T> content, int pageNumber, int pageSize, long totalElements) {
+        this(content, pageNumber, pageSize, totalElements,
+                calculateTotalPages(totalElements, pageSize),
+                pageNumber == 0,
+                pageNumber >= calculateTotalPages(totalElements, pageSize) - 1);
+    }
+
+    private static int calculateTotalPages(long totalElements, int pageSize) {
+        return pageSize > 0 ? (int) Math.ceil((double) totalElements / pageSize) : 0;
+    }
+
 }

@@ -1,7 +1,9 @@
 package com.gabryel.task.dto;
 
 import com.gabryel.task.enums.TaskState;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "Objeto contendo os dados de uma tarefa encontrada na API.")
 public class TaskFindDTO extends TaskDetailDTO {
 
     public static Builder builder() {

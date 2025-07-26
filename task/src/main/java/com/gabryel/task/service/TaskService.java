@@ -9,14 +9,13 @@ import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.repository.TaskRepository;
+import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -75,19 +74,13 @@ public class TaskService {
                 .onErrorResume(t -> Mono.error(new BadRequestException("Erro ao buscar tarefas -> : " + t.getMessage())));
     }
 
-    public Mono<ServerResponse> insertTask(TaskSaveDTO task) {
+    public Mono<TaskDetailDTO> insertTask(TaskSaveDTO task) {
         return Mono
                 .just(task)
                 .map(converter::toEntity)
                 .flatMap(this::save)
-                .doOnError(t -> LOGGER.error("Erro ao inserir tarefa {} -> : {}", task, t.getMessage()))
                 .map(converter::toDetail)
-                .flatMap(dto -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).bodyValue(dto))
-                .onErrorResume(t ->
-                        ServerResponse.badRequest().bodyValue(
-                                message.getMessage("teste", task.getTitle(), t.getMessage())
-                        )
-                );
+                .doOnError(t -> LOGGER.error("Erro ao inserir tarefa {} -> : {}", task, t.getMessage()));
     }
 
     public Mono<Void> deleteById(final String id) {
@@ -107,4 +100,12 @@ public class TaskService {
                 .doOnError(t -> LOGGER.error("Erro ao buscar tarefa {} -> : {}", id, t.getMessage()));
     }
 
+    public Mono<TaskDetailDTO> updateTask(@Valid TaskSaveDTO task) {
+        return Mono
+                .just(task)
+                .map(converter::toEntity)
+                .flatMap(this::save)
+                .map(converter::toDetail)
+                .doOnError(t -> LOGGER.error("Erro ao atualizar tarefa {} -> : {}", task, t.getMessage()));
+    }
 }

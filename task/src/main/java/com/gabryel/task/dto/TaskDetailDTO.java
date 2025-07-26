@@ -3,7 +3,7 @@ package com.gabryel.task.dto;
 import com.gabryel.task.enums.TaskState;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema
+@Schema(description = "Objeto contendo os dados de uma tarefa na API.")
 public class TaskDetailDTO {
 
     private String id;
