@@ -1,6 +1,5 @@
 package com.gabryel.task.service;
 
-import com.gabryel.task.configuration.MessageConfiguration;
 import com.gabryel.task.converter.TaskConverter;
 import com.gabryel.task.dto.PagedResponseDTO;
 import com.gabryel.task.dto.TaskDetailDTO;
@@ -25,12 +24,10 @@ public class TaskService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
 
-    private final MessageConfiguration message;
     private final TaskConverter converter;
     private final TaskRepository repository;
 
-    public TaskService(MessageConfiguration message, TaskConverter converter, TaskRepository repository) {
-        this.message = message;
+    public TaskService(TaskConverter converter, TaskRepository repository) {
         this.converter = converter;
         this.repository = repository;
     }

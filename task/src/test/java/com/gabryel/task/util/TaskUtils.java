@@ -8,8 +8,6 @@ import com.gabryel.task.enums.TaskState;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Component;
-import org.springframework.test.annotation.Commit;
 
 import java.util.List;
 

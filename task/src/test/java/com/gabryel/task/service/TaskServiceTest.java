@@ -1,6 +1,5 @@
 package com.gabryel.task.service;
 
-import com.gabryel.task.configuration.MessageConfiguration;
 import com.gabryel.task.converter.TaskConverter;
 import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskFindDTO;
@@ -32,9 +31,6 @@ class TaskServiceTest {
 
     @Mock
     private TaskRepository repository;
-
-    @Mock
-    private MessageConfiguration messageConfiguration;
 
     @InjectMocks
     private TaskService taskService;

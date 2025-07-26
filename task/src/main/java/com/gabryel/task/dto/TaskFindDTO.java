@@ -11,7 +11,7 @@ public class TaskFindDTO extends TaskDetailDTO {
     }
 
     public static class Builder {
-        private TaskFindDTO instance;
+        private final TaskFindDTO instance;
 
         private Builder() {
             instance = new TaskFindDTO();
