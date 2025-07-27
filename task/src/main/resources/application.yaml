@@ -11,3 +11,7 @@ spring:
       database: task
       uri: mongodb://localhost:27017/task?maxPoolSize=50&waitQueueTimeoutMS=2000
       auto-index-creation: true
+
+via:
+  cep:
+    url: https://viacep.com.br/ws
