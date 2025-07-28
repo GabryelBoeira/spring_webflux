@@ -18,6 +18,8 @@ public class TaskEntity {
 
     private TaskState state;
 
+    private AddressEntity address;
+
     public TaskEntity() {
     }
 
@@ -27,6 +29,7 @@ public class TaskEntity {
         this.description = builder.description;
         this.priority = builder.priority;
         this.state = builder.state;
+        this.address = builder.address;
     }
 
     public String getId() {
@@ -49,8 +52,22 @@ public class TaskEntity {
         return state;
     }
 
+    public AddressEntity getAddress() {
+        return address;
+    }
+
     public static Builder builder() {
         return new Builder();
+    }
+
+    public Builder toBuilder() {
+        return new Builder()
+                .id(this.id)
+                .title(this.title)
+                .description(this.description)
+                .priority(this.priority)
+                .state(this.state)
+                .address(this.address);
     }
 
     public static class Builder {
@@ -59,6 +76,7 @@ public class TaskEntity {
         private String description;
         private int priority;
         private TaskState state;
+        private AddressEntity address;
 
         private Builder() {
         }
@@ -85,6 +103,11 @@ public class TaskEntity {
 
         public Builder state(TaskState state) {
             this.state = state;
+            return this;
+        }
+
+        public Builder address(AddressEntity address) {
+            this.address = address;
             return this;
         }
 

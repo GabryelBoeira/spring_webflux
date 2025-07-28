@@ -1,10 +1,8 @@
 package com.gabryel.task.service;
 
+import com.gabryel.task.converter.AddressConverter;
 import com.gabryel.task.converter.TaskConverter;
-import com.gabryel.task.dto.PagedResponseDTO;
-import com.gabryel.task.dto.TaskDetailDTO;
-import com.gabryel.task.dto.TaskFindDTO;
-import com.gabryel.task.dto.TaskSaveDTO;
+import com.gabryel.task.dto.*;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.repository.TaskRepository;
@@ -24,11 +22,13 @@ public class TaskService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
 
-    private final TaskConverter converter;
+    private final TaskConverter taskConverter;
+    private final AddressConverter addressConverter;
     private final TaskRepository repository;
 
-    public TaskService(TaskConverter converter, TaskRepository repository) {
-        this.converter = converter;
+    public TaskService(TaskConverter taskConverter, AddressConverter addressConverter, TaskRepository repository) {
+        this.taskConverter = taskConverter;
+        this.addressConverter = addressConverter;
         this.repository = repository;
     }
 
@@ -37,7 +37,7 @@ public class TaskService {
         var pageable = PageRequest.of(page, size, Sort.by("title").ascending());
 
         Mono<List<TaskDetailDTO>> detailDTOsMono = repository.findPageableByFilters(filters, pageable)
-                .map(converter::toDetail)
+                .map(taskConverter::toDetail)
                 .collectList();
 
         Mono<Long> totalCountMono = repository.countByPageableByFilters(filters);
@@ -74,9 +74,9 @@ public class TaskService {
     public Mono<TaskDetailDTO> insertTask(TaskSaveDTO task) {
         return Mono
                 .just(task)
-                .map(converter::toEntity)
+                .map(taskConverter::toEntity)
                 .flatMap(this::save)
-                .map(converter::toDetail)
+                .map(taskConverter::toDetail)
                 .doOnError(t -> LOGGER.error("Erro ao inserir tarefa {} -> : {}", task, t.getMessage()));
     }
 
@@ -93,16 +93,26 @@ public class TaskService {
 
         return repository
                 .findById(id)
-                .map(converter::toDetail)
+                .map(taskConverter::toDetail)
                 .doOnError(t -> LOGGER.error("Erro ao buscar tarefa {} -> : {}", id, t.getMessage()));
     }
 
     public Mono<TaskDetailDTO> updateTask(@Valid TaskSaveDTO task) {
         return Mono
                 .just(task)
-                .map(converter::toEntity)
+                .map(taskConverter::toEntity)
                 .flatMap(this::save)
-                .map(converter::toDetail)
+                .map(taskConverter::toDetail)
                 .doOnError(t -> LOGGER.error("Erro ao atualizar tarefa {} -> : {}", task, t.getMessage()));
     }
+
+    public Mono<TaskEntity> updateAddress(TaskEntity task, AddressDTO address) {
+
+        return Mono.just(address)
+                .map(addressConverter::toEntity)
+                .flatMap(addressEntity -> Mono.just(task.toBuilder().address(addressEntity).build()))
+                .doOnError(t -> LOGGER.error("Erro ao atualizar endereço da tarefa {} -> : {}", task.getId(), t.getMessage()));
+    }
+
+
 }
