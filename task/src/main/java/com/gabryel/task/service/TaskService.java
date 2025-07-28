@@ -5,6 +5,7 @@ import com.gabryel.task.converter.TaskConverter;
 import com.gabryel.task.dto.*;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
+import com.gabryel.task.exception.TaskNotFoundException;
 import com.gabryel.task.repository.TaskRepository;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
@@ -25,11 +26,13 @@ public class TaskService {
     private final TaskConverter taskConverter;
     private final AddressConverter addressConverter;
     private final TaskRepository repository;
+    private final AddressService addressService;
 
-    public TaskService(TaskConverter taskConverter, AddressConverter addressConverter, TaskRepository repository) {
+    public TaskService(TaskConverter taskConverter, AddressConverter addressConverter, TaskRepository repository, AddressService addressService) {
         this.taskConverter = taskConverter;
         this.addressConverter = addressConverter;
         this.repository = repository;
+        this.addressService = addressService;
     }
 
     public Mono<PagedResponseDTO<TaskDetailDTO>> findPaginate(String id, String title, String description, Integer priority, TaskState state, Integer page, Integer size) {
@@ -114,5 +117,15 @@ public class TaskService {
                 .doOnError(t -> LOGGER.error("Erro ao atualizar endereço da tarefa {} -> : {}", task.getId(), t.getMessage()));
     }
 
+    public Mono<TaskEntity> start(final String taskId, final String zipCode) {
+        return repository
+                .findById(taskId)
+                .zipWhen(it -> addressService.getAddressByCep(zipCode))
+                .flatMap(it -> updateAddress(it.getT1(), it.getT2()))
+                .map(TaskEntity::start)
+                .flatMap(this::save)
+                .switchIfEmpty(Mono.error(TaskNotFoundException::new))
+                .doOnError(t -> LOGGER.error("Erro ao iniciar tarefa ID: {}", taskId, t));
+    }
 
 }

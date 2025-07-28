@@ -70,6 +70,12 @@ public class TaskEntity {
                 .address(this.address);
     }
 
+    public TaskEntity start() {
+        return toBuilder()
+                .state(TaskState.DOING)
+                .build();
+    }
+
     public static class Builder {
         private String id;
         private String title;
