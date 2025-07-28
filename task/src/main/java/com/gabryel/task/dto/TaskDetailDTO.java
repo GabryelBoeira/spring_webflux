@@ -11,6 +11,7 @@ public class TaskDetailDTO {
     private String description;
     private int priority;
     private TaskState state;
+    private AddressDTO address;
 
     public TaskDetailDTO() {
     }
@@ -61,6 +62,14 @@ public class TaskDetailDTO {
 
     public void setState(TaskState state) {
         this.state = state;
+    }
+
+    public AddressDTO getAddress() {
+        return address;
+    }
+
+    public void setAddress(AddressDTO address) {
+        this.address = address;
     }
 
     @Override

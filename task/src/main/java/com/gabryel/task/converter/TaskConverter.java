@@ -15,6 +15,12 @@ import java.util.Optional;
 @Component
 public class TaskConverter {
 
+    private final AddressConverter addressConverter;
+
+    public TaskConverter(AddressConverter addressConverter) {
+        this.addressConverter = addressConverter;
+    }
+
     public TaskEntity toEntity(TaskSaveDTO saveDto) {
         return Optional.ofNullable(saveDto)
                 .map(it -> TaskEntity.builder()
@@ -41,6 +47,7 @@ public class TaskConverter {
                     dto.setDescription(it.getDescription());
                     dto.setPriority(it.getPriority());
                     dto.setState(it.getState());
+                    dto.setAddress(addressConverter.toDto(it.getAddress()));
                     return dto;
                 }).orElse(null);
     }

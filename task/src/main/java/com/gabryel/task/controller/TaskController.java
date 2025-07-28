@@ -63,10 +63,10 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public Mono<TaskDetailDTO> updateTask(@RequestBody @Valid TaskSaveDTO task) {
+    public Mono<TaskDetailDTO> updateTask(@RequestBody @Valid TaskSaveDTO task, @PathVariable String id) {
         LOGGER.debug("Request updateTask(): {}", task);
 
-        return taskService.updateTask(task);
+        return taskService.updateTask(id, task);
     }
 
     @DeleteMapping("/{id}")
@@ -80,6 +80,12 @@ public class TaskController {
 
         return taskService.deleteById(id)
                 .onErrorMap(t -> new ResponseStatusException(HttpStatus.BAD_REQUEST, t.getMessage()));
+    }
+
+    @PostMapping("/start")
+    public Mono<TaskDetailDTO> startTask(@RequestParam String id, @RequestParam String zipCode) {
+
+        return taskService.start(id, zipCode);
     }
 
 }

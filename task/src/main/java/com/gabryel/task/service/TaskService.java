@@ -100,10 +100,14 @@ public class TaskService {
                 .doOnError(t -> LOGGER.error("Erro ao buscar tarefa {} -> : {}", id, t.getMessage()));
     }
 
-    public Mono<TaskDetailDTO> updateTask(@Valid TaskSaveDTO task) {
-        return Mono
-                .just(task)
-                .map(taskConverter::toEntity)
+    public Mono<TaskDetailDTO> updateTask(final String id, @Valid TaskSaveDTO task) {
+        return repository
+                .findById(id)
+                .map(taskEntity -> taskEntity.toBuilder()
+                        .title(task.getTitle())
+                        .description(task.getDescription())
+                        .priority(task.getPriority())
+                        .build())
                 .flatMap(this::save)
                 .map(taskConverter::toDetail)
                 .doOnError(t -> LOGGER.error("Erro ao atualizar tarefa {} -> : {}", task, t.getMessage()));
@@ -117,13 +121,14 @@ public class TaskService {
                 .doOnError(t -> LOGGER.error("Erro ao atualizar endereço da tarefa {} -> : {}", task.getId(), t.getMessage()));
     }
 
-    public Mono<TaskEntity> start(final String taskId, final String zipCode) {
+    public Mono<TaskDetailDTO> start(final String taskId, final String zipCode) {
         return repository
                 .findById(taskId)
                 .zipWhen(it -> addressService.getAddressByCep(zipCode))
                 .flatMap(it -> updateAddress(it.getT1(), it.getT2()))
                 .map(TaskEntity::start)
                 .flatMap(this::save)
+                .map(taskConverter::toDetail)
                 .switchIfEmpty(Mono.error(TaskNotFoundException::new))
                 .doOnError(t -> LOGGER.error("Erro ao iniciar tarefa ID: {}", taskId, t));
     }
