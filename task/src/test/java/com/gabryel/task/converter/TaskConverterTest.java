@@ -7,6 +7,8 @@ import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.util.TaskUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 
@@ -18,9 +20,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 public class TaskConverterTest {
 
+    @InjectMocks
+    private TaskConverter converter;
+
+    @Mock
+    private AddressConverter addressConverter;
+
     @Test
     public void testToEntity_NullTaskSaveDTO() {
-        TaskConverter converter = new TaskConverter();
 
         TaskEntity result = converter.toEntity(null);
 
@@ -29,7 +36,6 @@ public class TaskConverterTest {
 
     @Test
     public void testToEntityList_EmptyList() {
-        TaskConverter converter = new TaskConverter();
 
         List<TaskEntity> result = converter.toEntityList(new ArrayList<>());
 
@@ -39,7 +45,6 @@ public class TaskConverterTest {
 
     @Test
     public void testToEntityList_NullList() {
-        TaskConverter converter = new TaskConverter();
 
         List<TaskEntity> result = converter.toEntityList(null);
 
@@ -49,7 +54,6 @@ public class TaskConverterTest {
 
     @Test
     public void testToDetailList_NullList() {
-        TaskConverter converter = new TaskConverter();
 
         List<TaskDetailDTO> result = converter.toDetailList(null);
 
@@ -59,7 +63,6 @@ public class TaskConverterTest {
 
     @Test
     public void testPagedResponseDTO_NullPageContent() {
-        TaskConverter converter = new TaskConverter();
 
         Page<TaskEntity> page = Page.empty();
         PagedResponseDTO<TaskDetailDTO> result = converter.pagedResponseDTO(page);
@@ -71,9 +74,8 @@ public class TaskConverterTest {
 
     @Test
     public void testToDetail_ValidEntity() {
-        TaskConverter converter = new TaskConverter();
-        TaskEntity entity = TaskUtils.TASK_ENTITY;
 
+        TaskEntity entity = TaskUtils.TASK_ENTITY;
         TaskDetailDTO result = converter.toDetail(entity);
 
         assertNotNull(result);
@@ -86,7 +88,6 @@ public class TaskConverterTest {
 
     @Test
     public void testToDetail_NullEntity() {
-        TaskConverter converter = new TaskConverter();
 
         TaskDetailDTO result = converter.toDetail(null);
 

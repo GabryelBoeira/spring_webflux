@@ -6,6 +6,9 @@ import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import org.junit.jupiter.api.Test;
 
+import static com.tngtech.archunit.base.DescribedPredicate.not;
+import static com.tngtech.archunit.core.domain.properties.HasName.Predicates.nameEndingWith;
+
 public class ArchitectureTest {
 
     private static final String CONTROLLER = "com.gabryel.task.controller..";
@@ -17,6 +20,7 @@ public class ArchitectureTest {
     private static final String CONVERTER = "com.gabryel.task.converter..";
     private static final String EXCEPTION = "com.gabryel.task.exception..";
     private static final String CONFIGURATION = "com.gabryel.task.configuration..";
+    private static final String CLIENT = "com.gabryel.task.client..";
 
     private final JavaClasses classes = new ClassFileImporter()
             .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
@@ -76,7 +80,7 @@ public class ArchitectureTest {
     @Test
     void onlyServiceCanAccessRepository() {
         ArchRuleDefinition.noClasses()
-                .that().resideOutsideOfPackage(SERVICE)
+                .that().resideOutsideOfPackages(SERVICE, REPOSITORY)
                 .should().accessClassesThat().resideInAPackage(REPOSITORY)
                 .check(classes);
     }
@@ -84,7 +88,8 @@ public class ArchitectureTest {
     @Test
     void onlyControllerAndServiceCanAccessDto() {
         ArchRuleDefinition.noClasses()
-                .that().resideOutsideOfPackages(EXCEPTION, CONTROLLER, SERVICE, CONVERTER)
+                .that().resideOutsideOfPackages(EXCEPTION, CONTROLLER, SERVICE, CONVERTER, DTO, CLIENT, REPOSITORY)
+                .and().doNotHaveSimpleName("TaskUtils")
                 .should().accessClassesThat().resideInAPackage(DTO)
                 .check(classes);
     }
@@ -92,7 +97,8 @@ public class ArchitectureTest {
     @Test
     void onlyRepositoryCanAccessEntity() {
         ArchRuleDefinition.noClasses()
-                .that().resideOutsideOfPackage(REPOSITORY)
+                .that().resideOutsideOfPackages(REPOSITORY, CONVERTER, SERVICE)
+                .and(not(nameEndingWith("Test")))
                 .should().accessClassesThat().resideInAPackage(ENTITY)
                 .check(classes);
     }

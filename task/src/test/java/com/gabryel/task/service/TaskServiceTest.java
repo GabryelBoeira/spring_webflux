@@ -1,5 +1,6 @@
 package com.gabryel.task.service;
 
+import com.gabryel.task.converter.AddressConverter;
 import com.gabryel.task.converter.TaskConverter;
 import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskFindDTO;
@@ -28,6 +29,9 @@ class TaskServiceTest {
 
     @Mock
     private TaskConverter converter;
+
+    @Mock
+    private AddressConverter addressConverter;
 
     @Mock
     private TaskRepository repository;
