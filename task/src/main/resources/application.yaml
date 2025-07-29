@@ -1,11 +1,32 @@
 spring:
   application:
     name: task
+
+  cloud:
+    stream:
+      binders:
+        broker: localhost:9092
+      kafka:
+        binder:
+          auto-create-topics: true
+
+  kafka:
+    consumer:
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.gabryel.task.entity
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
   messages:
     default-locale: pt-BR
     basename: messages
     encoding: UTF-8
     fallback-to-system-locale: true
+
   data:
     mongodb:
       database: task
@@ -15,3 +36,7 @@ spring:
 via:
   cep:
     url: https://viacep.com.br/ws
+
+kafka:
+  task:
+    notification-output: task-notification-v1
