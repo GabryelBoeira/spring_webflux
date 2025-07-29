@@ -5,6 +5,7 @@ import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ public class TaskConverter {
 
     private final AddressConverter addressConverter;
 
+    @Autowired
     public TaskConverter(AddressConverter addressConverter) {
         this.addressConverter = addressConverter;
     }
