@@ -7,6 +7,7 @@ import com.gabryel.task.dto.TaskFindDTO;
 import com.gabryel.task.dto.TaskSaveDTO;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
+import com.gabryel.task.producer.TaskNotificationProducer;
 import com.gabryel.task.repository.TaskRepository;
 import com.gabryel.task.util.TaskUtils;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,9 @@ class TaskServiceTest {
     @InjectMocks
     private TaskService taskService;
 
+    @Mock
+    private TaskNotificationProducer taskProducer;
+
     @Test
     void testInsertTask_mustReturnTaskDetailDTO_whenSuccess() {
         // Arrange
@@ -49,6 +53,7 @@ class TaskServiceTest {
         when(converter.toEntity(any(TaskSaveDTO.class))).thenReturn(entity);
         when(repository.save(any(TaskEntity.class))).thenReturn(Mono.just(entity));
         when(converter.toDetail(any(TaskEntity.class))).thenReturn(detailDTO);
+        when(taskProducer.sendNotification(any())).thenReturn(Mono.just(detailDTO));
 
         // Act & Assert
         StepVerifier.create(taskService.insertTask(saveDTO))

@@ -1,8 +1,10 @@
 package com.gabryel.task.util;
 
+import com.gabryel.task.dto.AddressDTO;
 import com.gabryel.task.dto.PagedResponseDTO;
 import com.gabryel.task.dto.TaskDetailDTO;
 import com.gabryel.task.dto.TaskSaveDTO;
+import com.gabryel.task.entity.AddressEntity;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
 import org.springframework.boot.test.context.TestComponent;
@@ -29,4 +31,24 @@ public class TaskUtils {
     public static final PageRequest PAGEABLE = PageRequest.of(0, 10, Sort.by("title").ascending());
 
     public static final TaskSaveDTO TASK_SAVE_DTO = new TaskSaveDTO("task-title", "task-description", 5);
+
+    public static final AddressEntity ADDRESS_ENTITY = AddressEntity.builder()
+            .city("address-city")
+            .state("address-state")
+            .complement("address-complement")
+            .zipCode("address-zip-code")
+            .street("address-street")
+            .neighborhood("address-neighborhood")
+            .build();
+
+    public static final AddressDTO ADDRESS_DTO = AddressDTO.builder()
+            .city("address-city")
+            .state("address-state")
+            .complement("address-complement")
+            .zipCode("address-zip-code")
+            .street("address-street")
+            .neighborhood("address-neighborhood")
+            .build();
+
+
 }
