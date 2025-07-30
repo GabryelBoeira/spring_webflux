@@ -6,6 +6,7 @@ import com.gabryel.task.dto.*;
 import com.gabryel.task.entity.TaskEntity;
 import com.gabryel.task.enums.TaskState;
 import com.gabryel.task.exception.TaskNotFoundException;
+import com.gabryel.task.producer.TaskNotificationProducer;
 import com.gabryel.task.repository.TaskRepository;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
@@ -27,12 +28,14 @@ public class TaskService {
     private final AddressConverter addressConverter;
     private final TaskRepository repository;
     private final AddressService addressService;
+    private final TaskNotificationProducer taskProducer;
 
-    public TaskService(TaskConverter taskConverter, AddressConverter addressConverter, TaskRepository repository, AddressService addressService) {
+    public TaskService(TaskConverter taskConverter, AddressConverter addressConverter, TaskRepository repository, AddressService addressService, TaskNotificationProducer taskProducer) {
         this.taskConverter = taskConverter;
         this.addressConverter = addressConverter;
         this.repository = repository;
         this.addressService = addressService;
+        this.taskProducer = taskProducer;
     }
 
     public Mono<PagedResponseDTO<TaskDetailDTO>> findPaginate(String id, String title, String description, Integer priority, TaskState state, Integer page, Integer size) {
@@ -80,6 +83,7 @@ public class TaskService {
                 .map(taskConverter::toEntity)
                 .flatMap(this::save)
                 .map(taskConverter::toDetail)
+                .flatMap(taskProducer::sendNotification)
                 .doOnError(t -> LOGGER.error("Erro ao inserir tarefa {} -> : {}", task, t.getMessage()));
     }
 
