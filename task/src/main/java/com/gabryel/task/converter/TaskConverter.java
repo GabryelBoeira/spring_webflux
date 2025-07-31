@@ -64,4 +64,15 @@ public class TaskConverter {
         return new PagedResponseDTO<>(toDetailList(page.getContent()), page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(), page.isFirst(), page.isLast());
     }
 
+    public TaskEntity toEntityDetail(TaskDetailDTO detail) {
+        return Optional.ofNullable(detail)
+                .map(it -> TaskEntity.builder()
+                        .id(it.getId())
+                        .title(it.getTitle())
+                        .description(it.getDescription())
+                        .priority(it.getPriority())
+                        .state(TaskState.INSERT)
+                        .address(addressConverter.toEntity(it.getAddress()))
+                        .build()).orElse(null);
+    }
 }

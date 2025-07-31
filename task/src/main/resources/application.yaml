@@ -40,3 +40,4 @@ via:
 kafka:
   task:
     notification-output: task-notification-v1
+    notification-group-id: task-notification-v1-group

@@ -22,6 +22,7 @@ public class ArchitectureTest {
     private static final String CONFIGURATION = "com.gabryel.task.configuration..";
     private static final String CLIENT = "com.gabryel.task.client..";
     private static final String PRODUCER = "com.gabryel.task.producer..";
+    private static final String CONSUMER = "com.gabryel.task.consumer..";
 
     private final JavaClasses classes = new ClassFileImporter()
             .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
@@ -89,7 +90,7 @@ public class ArchitectureTest {
     @Test
     void onlyControllerAndServiceCanAccessDto() {
         ArchRuleDefinition.noClasses()
-                .that().resideOutsideOfPackages(EXCEPTION, CONTROLLER, SERVICE, CONVERTER, DTO, CLIENT, REPOSITORY, PRODUCER)
+                .that().resideOutsideOfPackages(EXCEPTION, CONTROLLER, SERVICE, CONVERTER, DTO, CLIENT, REPOSITORY, PRODUCER, CONSUMER)
                 .and().doNotHaveSimpleName("TaskUtils")
                 .should().accessClassesThat().resideInAPackage(DTO)
                 .check(classes);

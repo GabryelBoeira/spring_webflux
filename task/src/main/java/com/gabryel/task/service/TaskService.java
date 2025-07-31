@@ -137,4 +137,14 @@ public class TaskService {
                 .doOnError(t -> LOGGER.error("Erro ao iniciar tarefa ID: {}", taskId, t));
     }
 
+    public Mono<Void> doneTask(TaskDetailDTO taskDetailDTO) {
+
+        return Mono.just(taskDetailDTO)
+                .map(taskConverter::toEntityDetail)
+                .map(taskEntity -> taskEntity.toBuilder().state(TaskState.DOING).build())
+                .flatMap(this::save)
+                .then();
+    }
+
+
 }
