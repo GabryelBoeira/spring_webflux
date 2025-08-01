@@ -1,17 +1,39 @@
 package com.gabryel.task.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.joda.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.joda.ser.LocalDateTimeSerializer;
 import com.gabryel.task.enums.TaskState;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.time.LocalDateTime;
 
 @Schema(description = "Objeto contendo os dados de uma tarefa na API.")
 public class TaskDetailDTO {
 
+    @Schema(description = "Identificador da tarefa")
     private String id;
+
+    @Schema(description = "Titulo da tarefa")
     private String title;
+
+    @Schema(description = "Descricao da tarefa")
     private String description;
+
+    @Schema(description = "Prioridade da tarefa. Valores entre 1 e 5.")
     private int priority;
+
+    @Schema(description = "Estado da tarefa.")
     private TaskState state;
+
+    @Schema(description = "Caso a tarefa tenha inciado o endereco")
     private AddressDTO address;
+
+    @Schema(description = "Data de Criacao")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime createdAt;
 
     public TaskDetailDTO() {
     }
@@ -72,6 +94,14 @@ public class TaskDetailDTO {
         this.address = address;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     @Override
     public String toString() {
         return "TaskDetailDTO{" +
@@ -80,6 +110,8 @@ public class TaskDetailDTO {
                 ", description='" + description + '\'' +
                 ", priority=" + priority +
                 ", state=" + state +
+                ", addressZipCode=" + address.getZipCode() +
+                ", createdAt=" + createdAt +
                 '}';
     }
     

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -81,7 +82,7 @@ public class TaskService {
         return Mono
                 .just(task)
                 .map(taskConverter::toEntity)
-                .flatMap(this::save)
+                .flatMap(entity -> save(entity.toBuilder().createdAt(LocalDateTime.now()).build()))
                 .map(taskConverter::toDetail)
                 .flatMap(taskProducer::sendNotification)
                 .doOnError(t -> LOGGER.error("Erro ao inserir tarefa {} -> : {}", task, t.getMessage()));

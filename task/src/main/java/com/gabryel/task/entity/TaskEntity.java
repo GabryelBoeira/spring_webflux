@@ -4,6 +4,8 @@ import com.gabryel.task.enums.TaskState;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Document
 public class TaskEntity {
 
@@ -20,6 +22,8 @@ public class TaskEntity {
 
     private AddressEntity address;
 
+    private LocalDateTime createdAt;
+
     public TaskEntity() {
     }
 
@@ -30,6 +34,7 @@ public class TaskEntity {
         this.priority = builder.priority;
         this.state = builder.state;
         this.address = builder.address;
+        this.createdAt = builder.createdAt;
     }
 
     public String getId() {
@@ -56,6 +61,10 @@ public class TaskEntity {
         return address;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -67,7 +76,8 @@ public class TaskEntity {
                 .description(this.description)
                 .priority(this.priority)
                 .state(this.state)
-                .address(this.address);
+                .address(this.address)
+                .createdAt(this.createdAt);
     }
 
     public TaskEntity start() {
@@ -83,6 +93,7 @@ public class TaskEntity {
         private int priority;
         private TaskState state;
         private AddressEntity address;
+        private LocalDateTime createdAt;
 
         private Builder() {
         }
@@ -114,6 +125,11 @@ public class TaskEntity {
 
         public Builder address(AddressEntity address) {
             this.address = address;
+            return this;
+        }
+
+        public Builder createdAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
             return this;
         }
 

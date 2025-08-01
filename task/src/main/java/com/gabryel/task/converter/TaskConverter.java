@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +51,7 @@ public class TaskConverter {
                     dto.setPriority(it.getPriority());
                     dto.setState(it.getState());
                     dto.setAddress(addressConverter.toDto(it.getAddress()));
+                    dto.setCreatedAt(it.getCreatedAt());
                     return dto;
                 }).orElse(null);
     }
@@ -73,6 +75,7 @@ public class TaskConverter {
                         .priority(it.getPriority())
                         .state(TaskState.INSERT)
                         .address(addressConverter.toEntity(it.getAddress()))
+                        .createdAt(it.getCreatedAt())
                         .build()).orElse(null);
     }
 }
