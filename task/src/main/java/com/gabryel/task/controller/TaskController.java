@@ -13,7 +13,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/task")
@@ -86,6 +89,12 @@ public class TaskController {
     public Mono<TaskDetailDTO> startTask(@RequestParam String id, @RequestParam String zipCode) {
 
         return taskService.start(id, zipCode);
+    }
+
+    @PutMapping("/done")
+    public Flux<TaskDetailDTO> doneTasks(@RequestBody List<String> ids) {
+
+        return taskService.doneTaskByIdList(ids);
     }
 
 }

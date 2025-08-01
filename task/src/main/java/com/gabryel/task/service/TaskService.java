@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -138,14 +139,20 @@ public class TaskService {
                 .doOnError(t -> LOGGER.error("Erro ao iniciar tarefa ID: {}", taskId, t));
     }
 
-    public Mono<Void> doneTask(TaskDetailDTO taskDetailDTO) {
+    public Mono<TaskDetailDTO> doneTask(TaskDetailDTO taskDetailDTO) {
 
         return Mono.just(taskDetailDTO)
                 .map(taskConverter::toEntityDetail)
                 .map(taskEntity -> taskEntity.toBuilder().state(TaskState.DOING).build())
                 .flatMap(this::save)
-                .then();
+                .map(taskConverter::toDetail);
     }
 
+    public Flux<TaskDetailDTO> doneTaskByIdList(List<String> ids) {
+
+        return Flux.fromIterable(ids)
+                .flatMap(this::getTaskById)
+                .flatMap(this::doneTask);
+    }
 
 }
