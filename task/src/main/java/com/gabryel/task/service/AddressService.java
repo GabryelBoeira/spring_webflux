@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Service
 public class AddressService {
@@ -23,7 +24,13 @@ public class AddressService {
         return Mono.just(zipCode)
                 .doOnNext( it -> LOGGER.info("Buscando Cep {} " , zipCode))
                 .flatMap(viaCepClient::getAddress)
-                .onErrorResume(t -> Mono.error(CepNotFoundException::new));
+                .onErrorResume(t -> Mono.error(CepNotFoundException::new))
+                .retryWhen(Retry
+                        .backoff(4, java.time.Duration.ofSeconds(1))
+                        .maxBackoff(java.time.Duration.ofSeconds(10))
+                        .jitter(0.4)
+                        .filter(ex -> ex instanceof CepNotFoundException)
+                );
     }
 
 }
