@@ -1,11 +1,12 @@
 package com.gabryel.task.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema
+@Schema(description = "Endereco")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AddressDTO {
-
 
     @JsonProperty("cep")
     private String zipCode;

@@ -1,11 +1,13 @@
 package com.gabryel.task.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
 @Schema(description = "Objeto contendo os dados de uma resposta de erro na API.")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponse {
 
     private int status;

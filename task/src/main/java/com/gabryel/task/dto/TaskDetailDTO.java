@@ -1,5 +1,6 @@
 package com.gabryel.task.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.joda.deser.LocalDateTimeDeserializer;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
 @Schema(description = "Objeto contendo os dados de uma tarefa na API.")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskDetailDTO {
 
     @Schema(description = "Identificador da tarefa")
