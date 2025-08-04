@@ -18,7 +18,7 @@ repositories {
 }
 
 ext {
-    springCloudVersion = '2025.0.0'  // Ou a versão estável mais recente compatível com Spring Boot 3.5.x
+    springCloudVersion = '2025.0.0'
 }
 
 dependencyManagement {

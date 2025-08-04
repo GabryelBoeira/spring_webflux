@@ -2,24 +2,11 @@ spring:
   application:
     name: task
 
-  cloud:
-    stream:
-      binders:
-        broker: localhost:9092
-      kafka:
-        binder:
-          auto-create-topics: true
-
-  kafka:
-    consumer:
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring:
-          json:
-            trusted:
-              packages: com.gabryel.task.entity
-    producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  data:
+    mongodb:
+      database: task
+      uri: mongodb://localhost:27017/task?maxPoolSize=50&waitQueueTimeoutMS=2000
+      auto-index-creation: true
 
   messages:
     default-locale: pt-BR
@@ -27,17 +14,33 @@ spring:
     encoding: UTF-8
     fallback-to-system-locale: true
 
-  data:
-    mongodb:
-      database: task
-      uri: mongodb://localhost:27017/task?maxPoolSize=50&waitQueueTimeoutMS=2000
-      auto-index-creation: true
+  cloud:
+    stream:
+      binders:
+        broker:
+          type: kafka
+          environment:
+            spring.kafka.bootstrap-servers: localhost:9092
+      bindings:
+        task-notification-v1-out:
+          destination: ${kafka.task.notification-output}
+          contentType: application/json
 
-via:
-  cep:
-    url: https://viacep.com.br/ws
+  kafka:
+    consumer:
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.gabryel.task.entity
+      auto-offset-reset: earliest
+      group-id: ${kafka.task.notification-group-id}
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 kafka:
   task:
     notification-output: task-notification-v1
     notification-group-id: task-notification-v1-group
+
+via:
+  cep:
+    url: https://viacep.com.br/ws
