@@ -42,41 +42,9 @@ public class TaskService {
 
     public Mono<PagedResponseDTO<TaskDetailDTO>> findPaginate(String id, String title, String description, Integer priority, TaskState state, Integer page, Integer size) {
         var filters = TaskFindDTO.builder().id(id).title(title).description(description).priority(priority).state(state).build();
-        var pageable = PageRequest.of(page, size, Sort.by("title").ascending());
 
-        Mono<List<TaskDetailDTO>> detailDTOsMono = repository.findPageableByFilters(filters, pageable)
-                .map(taskConverter::toDetail)
-                .collectList();
-
-        Mono<Long> totalCountMono = repository.countByPageableByFilters(filters);
-
-        // Combina os dois Mono/Flux para construir um Mono<Page>
-        return Mono.zip(detailDTOsMono, totalCountMono)
-                .map(tuple -> {
-                    List<TaskDetailDTO> content = tuple.getT1();
-                    long totalElements = tuple.getT2();
-
-                    // Calcula o total de páginas. Se não houver elementos, considera 1 página.
-                    int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
-                    if (totalElements == 0) {
-                        totalPages = 1; // Para que isLast seja true na primeira (e única) página vazia
-                    }
-
-                    boolean isFirst = pageable.getPageNumber() == 0;
-                    boolean isLast = pageable.getPageNumber() == totalPages - 1;
-
-                    return new PagedResponseDTO<>(
-                            content,
-                            pageable.getPageNumber(),    // pageNumber
-                            pageable.getPageSize(),      // pageSize
-                            totalElements,               // totalElements
-                            totalPages,                  // totalPages
-                            isFirst,                     // isFirst
-                            isLast                       // isLast
-                    );
-                })
-                .doOnError(t -> LOGGER.error("Erro ao buscar tarefas -> : {}", t.getMessage()))
-                .onErrorResume(t -> Mono.error(new BadRequestException("Erro ao buscar tarefas -> : " + t.getMessage())));
+        return repository.findPaginated(filters, page, size)
+                .map(taskConverter::pagedResponseDTO);
     }
 
     public Mono<TaskDetailDTO> insertTask(TaskSaveDTO task) {
